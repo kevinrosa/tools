@@ -147,8 +147,8 @@ class oceanTests(unittest.TestCase):
         hchk = np.sum(avg1(Hmode)**2 * np.diff(Zmode).reshape(nz-2, 1), 0)
         vchk = np.sum(avg1(Vmode * N2.reshape(nz-1, 1))**2
                       * np.diff(Zmode).reshape(nz-2, 1), 0)
-        self.assertEqual(hchk, np.ones((1, n)))
-        self.assertEqual(vchk, np.ones((1, n)))
+        np.testing.assert_array_almost_equal(hchk.reshape(1, n), np.ones((1, n)))
+        np.testing.assert_array_almost_equal(vchk.reshape(1, n), np.ones((1, n)))
 
         # check against sine / cosines
         # Vmodechk = np.sin()
