@@ -8,7 +8,7 @@ if isdir(fname)
     dirname = fname;
     fnames = roms_find_file(dirname, ftype);
     fname = [dirname '/' fnames{1}];
-    tpv = dc_roms_read_data(dirname,'ocean_time');
+    tpv = dc_roms_read_data(dirname,'ocean_time', [], {}, [], [], ftype);
     dirflag = 1;
 else
     % extract dirname
@@ -20,7 +20,7 @@ end
 vinfo = ncinfo(fname,'u');
 s     = vinfo.Size;
 dim   = length(s); 
-slab  = roms_slab(fname,0)-4;
+slab  = roms_slab(fname,0);
 
 warning off
 grid = roms_get_grid(fname,fname,1,1);
@@ -69,12 +69,19 @@ if exist(outname,'file')
     if in == 1, delete(outname); end
 end
 
-nccreate(outname,'pv', 'Format','netcdf4', 'DeflateLevel',1,'Shuffle',true,...
+% better packing = better compression?
+%pv_scale = 1e-11;
+%rv_scale = 1e-4;
+% steal chunking from ROMS
+rhoinfo = ncinfo(fname, 'rho');
+chunksize = rhoinfo.ChunkSize;
+
+nccreate(outname,'pv', 'Format','netcdf4', 'DeflateLevel',5,'Shuffle',true,...
     'Dimensions', {xdname s(1)-1 ydname s(2)-2 zdname s(3)-1 tdname length(tpv)}, ...
-    'ChunkSize',[ceil((s(1)-1)/2) ceil((s(2)-1)/2) ceil((s(3)-1)/2) 1]);
-nccreate(outname,'rv', 'Format','netcdf4', 'DeflateLevel',1,'Shuffle',true,...
+    'ChunkSize', chunksize, 'Datatype', 'single');
+nccreate(outname,'rv', 'Format','netcdf4', 'DeflateLevel',5,'Shuffle',true,...
     'Dimensions', {xdrname s(1) ydrname s(2)-1 zdrname s(3)-1 tdname length(tpv)}, ...
-    'ChunkSize',[ceil((s(1)-1)/2) ceil((s(2)-1)/2) ceil((s(3)-1)/2) 1]);
+    'ChunkSize', chunksize, 'Datatype', 'single');
 nccreate(outname,xname,'Dimensions',{xdname s(1)-1 ydname s(2)-2 zdname s(3)-1});
 nccreate(outname,yname,'Dimensions',{xdname s(1)-1 ydname s(2)-2 zdname s(3)-1});
 nccreate(outname,zname,'Dimensions',{xdname s(1)-1 ydname s(2)-2 zdname s(3)-1});
@@ -87,9 +94,11 @@ nccreate(outname,'intPV','Dimensions',{tdname length(tpv)});
 ncwriteatt(outname,'pv','Description','Ertel PV calculated from ROMS output');
 ncwriteatt(outname,'pv','coordinates',[xname ' ' yname ' ' zname ' ' tname]);
 ncwriteatt(outname,'pv','units','N/A');
+%ncwriteatt(outname,'pv','scale_factor',pv_scale);
 ncwriteatt(outname,'rv','Description','Relative voritcity, vx-uy');
 ncwriteatt(outname,'pv','coordinates',['x_rv y_rv z_rv ocean_time']);
 ncwriteatt(outname,'rv','units','1/s');
+%ncwriteatt(outname,'rv','scale_factor',rv_scale);
 ncwriteatt(outname,xname,'units',ncreadatt(fname,'x_u','units'));
 ncwriteatt(outname,yname,'units',ncreadatt(fname,'y_u','units'));
 ncwriteatt(outname,zname,'units','m');
@@ -110,15 +119,17 @@ for i=0:iend-1
     
     if dirflag
         u = dc_roms_read_data(dirname,'u',[tstart tend],{},[],grid, ...
-                              ftype);
+                              ftype, 'single');
         v = dc_roms_read_data(dirname,'v',[tstart tend],{},[],grid, ...
-                              ftype);
+                              ftype, 'single');
         
         try
-            rho = dc_roms_read_data(dirname,'rho',[tstart tend],{},[],grid);
+            rho = dc_roms_read_data(dirname,'rho',[tstart tend],{},[],grid, ...
+                                    ftype, 'single');
         catch ME
             rho = rho0 -rho0 * misc.Tcoef* ...
-                dc_roms_read_data(dirname,'temp',[tstart tend],{},[],grid);
+                dc_roms_read_data(dirname,'temp',[tstart tend],{},[],grid, ...
+                                  ftype, 'single');
         end
     else
         u = ncread(fname,'u',read_start,read_count,stride);
@@ -130,8 +141,11 @@ for i=0:iend-1
         end
     end
 
+    disp('Calculating pv...');
+    pvstart = tic;
     [pv,xpv,ypv,zpv,rvor] = pv_cgrid(grid1,u,v,rho,f,rho0);
-        
+    toc(pvstart);
+    
     if i == 0
         % write grid
         ncwrite(outname,xname,xpv);
