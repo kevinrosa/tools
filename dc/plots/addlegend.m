@@ -1,8 +1,8 @@
 % adds string to legend
-%       [] = addlegend(handle,str)
+%       [legh] = addlegend(handle,str)
 % from http://www.mathworks.com/support/solutions/en/data/1-181SJ/?solution=1-181SJ
 
-function [] = addlegend(handle,str,loc)
+function [legh] = addlegend(handle,str,loc)
 
     if ~exist('loc','var') || isempty(loc), loc = 'NorthEast'; end
     legend('show');
