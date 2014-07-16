@@ -46,4 +46,4 @@ function [handles] = dcline(ax,x,label,color)
     end
     
     % add extra axis ticks
-    set(hAxis,tickstr,sort(unique(str2num(sprintf('%.2f ', [tick x])))));
+    %set(hAxis,tickstr,sort(unique(str2num(sprintf('%.2e ', [tick x])))));
