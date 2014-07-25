@@ -5,6 +5,6 @@ function [handles] = linex(x,label,color)
     
     if ~exist('label','var'), label = []; end
 
-    if ~exist('color','var'), color = 'k'; end
+    if ~exist('color','var'), color = []; end
     
     handles = dcline('x',x,label,color);

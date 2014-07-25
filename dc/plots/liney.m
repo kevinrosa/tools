@@ -4,5 +4,5 @@
 function [handles] = liney(y,label,color)
     
     if ~exist('label','var'), label = []; end
-    if ~exist('color','var'), color = 'k'; end
+    if ~exist('color','var'), color = []; end
     handles = dcline('y',y,label,color);

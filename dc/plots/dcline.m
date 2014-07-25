@@ -11,7 +11,7 @@ function [handles] = dcline(ax,x,label,color)
     hold on;
     
     if ~exist('label','var'), label = [];num2str(x'); end
-    if ~exist('color','var'), color = 'k'; end
+    if ~exist('color','var') || isempty(color), color = [1 1 1]*0.7; end
     
     if length(x) ~= size(label,1)
         label = repmat(label,[length(x) 1]);
