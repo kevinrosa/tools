@@ -47,11 +47,11 @@ set(0,'DefaultLineLineWidth',2);
 
 
 % multiple monitor support
-mm = get(0,'MonitorPositions');
-if size(mm,1) == 2,
-    disp('2 monitors detected.');
-    set(0,'DefaultFigurePosition',[0.725*(mm(1,3)+mm(2,3)) 0.5*mm(2,4) 560 420]);
-end
+%mm = get(0,'MonitorPositions');
+%if size(mm,1) == 2,
+%    disp('2 monitors detected.');
+%    set(0,'DefaultFigurePosition',[0.725*(mm(1,3)+mm(2,3)) 0.5*mm(2,4) 560 420]);
+%end
 
 
 %% change to current working dir
