@@ -135,7 +135,7 @@ function [] = stat(var1)
     
         if n > size_limit 
             fprintf('\n');
-            warning('Terminating because array is too large.'); 
+            %            warning('Terminating because array is too large.'); 
             return; 
         end
 
