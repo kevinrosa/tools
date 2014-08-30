@@ -154,9 +154,13 @@ function [im alpha] = export_fig(varargin)
 try
     hash = githash;
 catch ME
-    hash = [];
+    hash = ' ';
     warning('githash didn''t work');
 end
+if strfind(hash, '(or any parent')
+    hash = ' ';
+end
+
 % Parse the input arguments
 [fig options] = parse_args(nargout, varargin{:});
 % Isolate the subplot, if it is one
