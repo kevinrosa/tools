@@ -20,4 +20,3 @@ function [legh] = addlegend(handle,str,loc)
     
     legh = legend([outh;handle],outm{:},str);
     set(legh,'Location',loc);
-    
