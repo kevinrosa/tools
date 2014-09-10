@@ -18,7 +18,7 @@
 %
 % RNT - E. Di Lorenzo (edl@ucsd.edu)
 
-function Tz  = scoord2z(Ts,s,z,varargin)
+function Tz  = rnt_2z(Ts,s,z,varargin)
 
 vintrp=0;
 if nargin ==4
