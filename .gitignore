@@ -15,3 +15,4 @@ misc/matVTK1.0/
 *.log
 *.aux
 *.dat
+*.pyc
