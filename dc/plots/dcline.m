@@ -38,13 +38,15 @@ function [handles, txthandles] = dcline(ax,x,label,color)
         if ax == 'x'
             handles(i) = plot([x(i) x(i)],yax,'--','LineWidth',2,'Color',color);
             if ~isempty(label)
-                txthandles(i) = text(double(x(i)),double(yax(end)-(length(label{i}))/2),label{i}, ...
-                    'Rotation',0,'VerticalAlignment','Bottom','FontSize',16,'Color',color);%,'FontWeight','Bold');
+                tick = get(hAxis, 'YTick');
+                txthandles(i) = text(double(x(i)),double(tick(end-1)),label{i}, ...
+                    'Rotation',90,'VerticalAlignment','Bottom','FontSize',16,'Color',color);%,'FontWeight','Bold');
             end
         else
             handles(i) = plot(xax,[x(i) x(i)],'--','LineWidth',2,'Color',color);
             if ~isempty(label)
-                txthandles(i) = text(double(xax(end)-(length(label{i})))/2,double(x(i)),label{i}, ...
+                tick = get(hAxis, 'XTick');
+                txthandles(i) = text(double(tick(end-1)),double(x(i)),label{i}, ...
                     'Rotation',0,'VerticalAlignment','Bottom','FontSize',16,'Color',color);%,'FontWeight','Bold');
             end
         end
