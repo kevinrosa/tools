@@ -7,6 +7,9 @@ function [hline] = line45(hAxis)
     for ii=1:length(hAxis)
         axes(hAxis(ii));
         limx = xlim;
-        hline = plot(limx, limx, '--', 'Color', [1 1 1]*0.75);
+        limy = ylim;
+        lim(1) = min([limx limy]);
+        lim(2) = max([limx limy]);
+        hline = plot(lim, lim, '--', 'Color', [1 1 1]*0.75);
     end
 end
