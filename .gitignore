@@ -6,6 +6,13 @@ ROMS/ROMS_wilkin/.svn/
 ROMS/pmacc/tools_output/
 latex/tex/latex/misc/
 misc/matVTK1.0/
+python/octant/
+python/basemap-1.0.7/
+python/pyroms/
+python/sumatra_src/
+*.fls
+*.fmt
+*.mexa64
 *.asv
 *.m~
 *.prf
