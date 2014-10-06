@@ -1,0 +1,58 @@
+\usepackage{mathtools}
+\usepackage[usenames]{color}
+
+\usepackage{iftex}
+\ifPDFTeX
+	\usepackage{inputenx}
+	\usepackage[T1]{fontenc}  % better font encoding
+	\usepackage[sc]{mathpazo}    % fancy math fonts
+\fi
+\ifXeTeX
+	\usepackage{fontspec}
+	\usepackage{unicode-math}
+	
+	\setromanfont[Ligatures=TeX]{TeX Gyre Pagella}
+	\setmathfont[math-style=ISO,bold-style=ISO,vargreek-shape=TeX]{TG Pagella Math}
+	\setmonofont{Inconsolata}
+\fi
+
+% Here are a few math abbreviations that may be useful. Note that math 
+% variables should generally be set in italic, vectors in bold italic, and
+% constants, such as e and i should be upright. Operators like the 'd' in 
+% dx  and 'D' in D/Dt should also be upright. 
+\newcommand{\ir}{\mathrm{i}}
+\newcommand{\dr}{\mathrm{d}}
+\newcommand{\D}{\mathrm{D}}
+\newcommand{\e}{\, \mathrm{e}} \newcommand{\er}{\mathrm{e}}
+
+% The following makes ODEs and PDEs easier to write.
+% For an example, see the second problem below. - Vallis Solution template
+\newcommand{\dd}[3][]{{\frac{\dr^{#1} #2}{\dr #3^{#1}}}}
+\newcommand{\pp}[3][]{{\frac{\partial^{#1} #2}{\partial #3^{#1}}}}
+\newcommand{\DD}[1]{{\frac{\D#1}{\D t}}}
+
+% These are some of my math shortcuts
+\newcommand{\mb}[1]{\boldsymbol{#1}} % math bold font
+\newcommand{\ol}[1]{\overline{#1}}   
+\newcommand{\x}{\times}
+\newcommand{\mO}{\mathcal{O}}
+\newcommand{\ubr}{\underbracket}
+\newcommand{\disp}{\displaystyle}
+\newcommand{\vb}{\mb {v}\xspace}
+\newcommand{\ub}{\mb {u}\xspace}
+
+% non-dimensional numbers
+\newcommand{\Ro}{\mathit{Ro}}
+\newcommand{\Rh}{\mathit{Rh}}
+\newcommand{\Ri}{\mathit{Ri}}
+\newcommand{\Rif}{\Ri_f}
+\newcommand{\Pra}{\mathit{Pr}}
+\newcommand{\Pe}{\mathit{Pe}}
+\newcommand{\Ra}{\mathit{Ra}}
+\newcommand{\Rey}{\mathit{Re}}
+\newcommand{\Fr}{\mathit{Fr}}
+\newcommand{\Bu}{\mathit{Bu}}
+
+\usepackage{fixltx2e}
+\usepackage{xfrac}
+\usepackage{bigints}
