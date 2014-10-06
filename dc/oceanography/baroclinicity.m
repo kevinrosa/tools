@@ -19,6 +19,8 @@ function [bc] = baroclinicity(zvec, profile)
         tot = 0.5 * int(prof.^2, [0 1]);
         da = 0.5 * mean.^2 * 1;
         result = (tot - da)/tot;
+    else
+        test_flag = 0;
     end
 
     pmean = nanmean(profile);
