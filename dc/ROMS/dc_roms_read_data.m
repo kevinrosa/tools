@@ -45,40 +45,60 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         else
             fname = folder;
         end
+
         % variable information
         vinfo  = ncinfo(fname,varname);
         nt     = vinfo.Size(end);
-        if ii == 1
-            ndim = length(vinfo.Size);  
-            if ndim == 3
-               stride(4) = [];
-            end
-            if ndim ~= 1
-                if isempty(grd)
-                    if objflag
-                        grd = run.rgrid;
-                    else
-                        grd = roms_get_grid(fname,fname,0,1);
-                    end
-                end
-                [xax,yax,zax,vol] = dc_roms_extract(grd,varname,volume,1);
+        ndim = length(vinfo.Size);
+
+        % float variables
+        if strcmpi(ftype, 'flt')
+            vol = [];
+            xax = [];
+            yax = [];
+            zax = [];
+
+            if ndim == 2
+                stride = [1 1];
             else
-                % for 1D time series data, none of this is applicable
-                vol = [];
-                xax = [];
-                yax = [];
-                zax = [];
-                
-                stride(2:end) = [];
+                stride = 1;
             end
-            %[~,~,~,time,xunits,yunits] = dc_roms_var_grid(grd,varname);
-        end        % process tindices (input) according to file
+        else
+            % all other variables
+            if ii == 1
+                if ndim == 3
+                    stride(4) = [];
+                end
+                if ndim ~= 1
+                    if isempty(grd)
+                        if objflag
+                            grd = run.rgrid;
+                        else
+                            grd = roms_get_grid(fname,fname,0,1);
+                        end
+                    end
+                    [xax,yax,zax,vol] = dc_roms_extract(grd,varname,volume,1);
+                else
+                    % for 1D time series data, none of this is applicable
+                    vol = [];
+                    xax = [];
+                    yax = [];
+                    zax = [];
+
+                    stride(2:end) = [];
+                end
+                %[~,~,~,time,xunits,yunits] = dc_roms_var_grid(grd,varname);
+            end
+        end
+
+        % process tindices (input) according to file
         [~,tnew,dt,~,tstride] = roms_tindices(tindices,slab,nt);
         % if tindices(2) is Inf and there are multiple files the case 2
         % does not execute since tnew is set by roms_tindices to be nt -
         % which comes from 1 file only.
         if isinf(tindices(2)), tnew(2) = Inf; end
         stride(end) = tstride(end);
+
         % Case 1 : if requested data not in this file, skip to next
         if tnew(1) > vinfo.Size(end)
             tindices = tindices - nt;
