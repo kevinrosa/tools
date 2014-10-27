@@ -10,8 +10,8 @@ feature('DefaultCharacterSet', 'UTF8')
 %% Make good figures
 
 % good colormap
-set(0,'DefaultFigureColormap',flipud(cbrewer('div', 'RdYlBu', 32)));
-
+%set(0,'DefaultFigureColormap',flipud(cbrewer('div', 'RdYlBu', 32)));
+set(0, 'DefaultFigureColormap', parula); close;
 fontName = 'helvetica';
 
 % figure properties
