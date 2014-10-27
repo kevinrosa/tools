@@ -133,7 +133,8 @@ end
 
 vinfo  = ncinfo(fname,varname);
 dim    = length(vinfo.Size);
-slab   = 100; % slab for ncread. read 'n' records in at a time - faster response + save some memory?
+slab   = 100; % slab for ncread. read 'n' records in at a time -
+              % faster response + save some memory?
 
 [iend,tindices,dt,~,stride] = roms_tindices(tindices,slab,vinfo.Size(end));
 
