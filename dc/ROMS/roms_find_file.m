@@ -43,11 +43,13 @@ function [fname] = roms_find_file(dirin,type)
     % files from *.in 
     if strcmpi(type,'ini') || strcmpi(type,'bry') ||  strcmpi(type,'grd')
         fname = ['/config/' grep_in([fname in],type)];
+        return;
     end
     
     % floats
     if strcmpi(type,'flt')
-        fname = [grep_in([fname in],type)];
+        fnames = dir([dirin '/*_flt*.nc*']);
+        %        fname = [grep_in([fname in],type)];
     end
     
     if strcmpi(type,'his')
@@ -55,12 +57,6 @@ function [fname] = roms_find_file(dirin,type)
         if isempty(fnames)
             fnames = dir([dirin '/*_avg*.nc*']); 
             disp('Using avg files instead.');
-        end
-        
-        % convert from struct to names
-        clear fname
-        for kk=1:size(fnames)
-            fname{kk}= fnames(kk,:).name;
         end
     end
     
@@ -70,12 +66,12 @@ function [fname] = roms_find_file(dirin,type)
             fnames = dir([dirin '/*_his*.nc*']); 
             disp('Using his files instead.');
         end
-        
-        % convert from struct to names
-        clear fname
-        for kk=1:size(fnames)
-            fname{kk}= fnames(kk,:).name;
-        end
+    end
+
+    % convert from struct to names
+    clear fname
+    for kk=1:size(fnames)
+        fname{kk}= fnames(kk,:).name;
     end
     
 
