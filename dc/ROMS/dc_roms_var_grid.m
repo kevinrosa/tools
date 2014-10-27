@@ -49,22 +49,32 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
 
     switch pos
         case 'u'
+          if ~isempty(grd.lon_u)
             xax = repmat(grd.lon_u',[1 1 N]);
             yax = repmat(grd.lat_u',[1 1 N]);
-            zax = permute(grd.z_u,[3 2 1]);
-            tax = ncread(fname,'ocean_time');
+          else
+            xax = repmat(grd.x_u',[1 1 N]);
+            yax = repmat(grd.x_u',[1 1 N]);
+          end
+          zax = permute(grd.z_u,[3 2 1]);
+          tax = ncread(fname,'ocean_time');
 
-            try
-                xunits = ncreadatt(fname,'lon_u','units');
-                yunits = ncreadatt(fname,'lat_u','units');
-            catch ME
-                xunits = ncreadatt(fname,'x_u','units');
-                yunits = ncreadatt(fname,'y_u','units');
-            end
+          try
+              xunits = ncreadatt(fname,'lon_u','units');
+              yunits = ncreadatt(fname,'lat_u','units');
+          catch ME
+              xunits = ncreadatt(fname,'x_u','units');
+              yunits = ncreadatt(fname,'y_u','units');
+          end
 
         case 'v'
-            xax = repmat(grd.lon_v',[1 1 N]);
-            yax = repmat(grd.lat_v',[1 1 N]);
+            if ~isempty(grd.lon_v)
+                xax = repmat(grd.lon_v',[1 1 N]);
+                yax = repmat(grd.lat_v',[1 1 N]);
+            else
+                xax = repmat(grd.x_v',[1 1 N]);
+                yax = repmat(grd.y_v',[1 1 N]);
+            end
             zax = permute(grd.z_v,[3 2 1]);
             tax = ncread(fname,'ocean_time');
 
@@ -77,8 +87,13 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
             end
 
         case 'w'
-            xax = repmat(grd.lon_rho',[1 1 N+1]);
-            yax = repmat(grd.lat_rho',[1 1 N+1]);
+            if ~isempty(grd.lon_rho)
+                xax = repmat(grd.lon_rho',[1 1 N+1]);
+                yax = repmat(grd.lat_rho',[1 1 N+1]);
+            else
+                xax = repmat(grd.x_rho',[1 1 N+1]);
+                yax = repmat(grd.y_rho',[1 1 N+1]);
+            end
             zax = permute(grd.z_w,[3 2 1]);
             tax = ncread(fname,'ocean_time');
 
@@ -95,12 +110,22 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
             tax = ncread(fname,'ocean_time');
 
             if strcmp(varname, 'zeta');
-                xax = grd.lon_rho';
-                yax = grd.lat_rho';
+                if ~isempty(grd.lon_rho)
+                    xax = grd.lon_rho';
+                    yax = grd.lat_rho';
+                else
+                    xax = repmat(grd.x_rho',[1 1 N+1]);
+                    yax = repmat(grd.y_rho',[1 1 N+1]);
+                end
                 zax = [];
             else
-                xax = repmat(grd.lon_rho',[1 1 N]);
-                yax = repmat(grd.lat_rho',[1 1 N]);
+                if ~isempty(grd.lon_rho)
+                    xax = repmat(grd.lon_rho',[1 1 N]);
+                    yax = repmat(grd.lat_rho',[1 1 N]);
+                else
+                    xax = repmat(grd.x_rho',[1 1 N+1]);
+                    yax = repmat(grd.y_rho',[1 1 N+1]);
+                end
                 zax = permute(grd.z_r,[3 2 1]);
             end
 
