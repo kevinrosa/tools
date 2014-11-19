@@ -1,4 +1,4 @@
-% finds files for type = ini / bry / grd / flt / his / avg
+% finds files for type = ini / bry / grd / fpos / flt / his / avg
 %   [fname] = roms_find_file(dir,type)
 % can return a list for last two types. fname does NOT contain input
 % directory
@@ -41,7 +41,8 @@ function [fname] = roms_find_file(dirin,type)
     end
     
     % files from *.in 
-    if strcmpi(type,'ini') || strcmpi(type,'bry') ||  strcmpi(type,'grd')
+    if strcmpi(type,'ini') || strcmpi(type,'bry') ||  strcmpi(type,'grd') ...
+            || strcmpi(type, 'fpos')
         fname = ['/config/' grep_in([fname in],type)];
         return;
     end
@@ -49,9 +50,8 @@ function [fname] = roms_find_file(dirin,type)
     % floats
     if strcmpi(type,'flt')
         fnames = dir([dirin '/*_flt*.nc*']);
-        %        fname = [grep_in([fname in],type)];
     end
-    
+
     if strcmpi(type,'his')
         fnames = dir([dirin '/*_his*.nc*']);
         if isempty(fnames)
@@ -77,7 +77,14 @@ function [fname] = roms_find_file(dirin,type)
 
 % runs grep on input file
 function [str] = grep_in(fname,type)
-        [~,p] = grep('ININAME == ',fname); 
+    [~,p] = grep([upper(type) 'NAME == '],fname);
+    if isempty(p.match) % catch FPOSNAM
+        [~,p] = grep([upper(type) 'NAM = '],fname);
         % line in p.match must be processed to extract *.nc name
-        str = sscanf(char(p.match),sprintf(' %sNAME == %%s',upper(type)));
-        
+        str = sscanf(char(p.match),sprintf(' %sNAM = %%s', ...
+                                           upper(type)));
+    else
+        % line in p.match must be processed to extract *.nc name
+        str = sscanf(char(p.match),sprintf(' %sNAME == %%s', ...
+                                           upper(type)));
+    end

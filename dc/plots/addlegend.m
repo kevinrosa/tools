@@ -5,11 +5,14 @@
 function [legh] = addlegend(handle,str,loc)
 
     if ~exist('loc','var') || isempty(loc), loc = 'NorthEast'; end
-    legend('show');
-    
+
     % get legend handles
     [~,~,outh,outm] = legend;
-    
+    if isempty(outh)
+        legend('show');
+        [~,~,outh,outm] = legend;
+    end
+
     % remove default title
     if length(outh) == 1 && strcmp(outm{1},'data1')
         outh = [];
