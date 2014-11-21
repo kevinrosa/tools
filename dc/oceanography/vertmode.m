@@ -26,10 +26,12 @@ function [Vmode, Hmode, c] = vertmode(N2, Z, n, make_plot)
     if any(Z < 0), error(['Some elements in Z are 0. This is not ' ...
                           'allowed!']); end
 
+    flipflag = 0;
     if all(diff(Z) < 0),
         warning('Flipping inputs so that diff(Z) > 0 always');
         N2 = flipud(N2);
         Z = flipud(Z);
+        flipflag = 1;
     end
 
     if n > (lz-1)
@@ -94,6 +96,11 @@ function [Vmode, Hmode, c] = vertmode(N2, Z, n, make_plot)
 
     Hmode = Hnorm;
     Vmode = Vnorm;
+
+    if flipflag
+        Hmode = flipud(Hmode);
+        Vmode = flipud(Vmode);
+    end
 
     % Plot first n modes
     if make_plot
