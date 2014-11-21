@@ -131,7 +131,8 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
             temp = squeeze(double(ncread(fname,varname,start,count, ...
                                          stride)));
         end
-        if count(end) == 1 && ii == 1 % first file has the single timestep
+        if count(end) == 1 && ii == 1 && quitflag == 1
+            % first file has the single timestep
             out = temp;
             return;
         end
