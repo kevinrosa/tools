@@ -15,7 +15,23 @@ function [Vmode, Hmode, c] = vertmode(N2, Z, n, make_plot)
 
     lz = length(Z);
     if size(Z,1) == 1, Z = Z'; end
-    
+
+    assert(length(N2) == length(Z)-1);
+
+    if all(Z < 0)
+        warning('Provided negative Z - converting to positive');
+        Z = -1 * Z;
+    end
+
+    if any(Z < 0), error(['Some elements in Z are 0. This is not ' ...
+                          'allowed!']); end
+
+    if all(diff(Z) < 0),
+        warning('Flipping inputs so that diff(Z) > 0 always');
+        N2 = flipud(N2);
+        Z = flipud(Z);
+    end
+
     if n > (lz-1)
         fprintf('\n n too big. Reducing to (length(Z) - 1)');
         n = lz - 1;
