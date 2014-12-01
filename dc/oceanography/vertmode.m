@@ -15,8 +15,12 @@ function [Vmode, Hmode, c] = vertmode(N2, Z, n, make_plot)
 
     lz = length(Z);
     if size(Z,1) == 1, Z = Z'; end
+    if size(N2,1) == 1, N2 = N2'; end
 
     assert(length(N2) == length(Z)-1);
+    if any(N2 < 0)
+       error('N² < 0, won''t work!');
+    end
 
     if all(Z < 0)
         warning('Provided negative Z - converting to positive');
