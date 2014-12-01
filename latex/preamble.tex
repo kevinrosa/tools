@@ -61,21 +61,21 @@
 %\usepackage{uri}
 
 % Line spacing 1.5
-\linespread{1.5} 
+\linespread{1.5}
 
 \frenchspacing
-\newcommand{\ifundefined}[1]{\expandafter\ifx\csname#1\endcsname\relax} 
-	
+\newcommand{\ifundefined}[1]{\expandafter\ifx\csname#1\endcsname\relax}
+
 % better sqrt (from wikibook)
-\LetLtxMacro{\oldsqrt}{\sqrt} % makes all sqrts closed
-\renewcommand{\sqrt}[1][]{%
-  \def\DHLindex{#1}\mathpalette\DHLhksqrt}
-\def\DHLhksqrt#1#2{%
-  \setbox0=\hbox{$#1\oldsqrt[\DHLindex]{#2\,}$}\dimen0=\ht0
-  \advance\dimen0-0.2\ht0
-  \setbox2=\hbox{\vrule height\ht0 depth -\dimen0}%
-  {\box0\lower0.71pt\box2}}
-  
+%\LetLtxMacro{\oldsqrt}{\sqrt} % makes all sqrts closed
+%\renewcommand{\sqrt}[1][]{%
+%  \def\DHLindex{#1}\mathpalette\DHLhksqrt}
+%\def\DHLhksqrt#1#2{%
+%  \setbox0=\hbox{$#1\oldsqrt[\DHLindex]{#2\,}$}\dimen0=\ht0
+%  \advance\dimen0-0.2\ht0
+%  \setbox2=\hbox{\vrule height\ht0 depth -\dimen0}%
+%  {\box0\lower0.71pt\box2}}
+
 % make sure \pi looks like pi NOT NEEDED ANYMORE?
 % see: http://tex.stackexchange.com/questions/33140/mathpazo-siunitx-turns-into-ss?rq=1
 %\protected\def\numpi{\text{\ensuremath{\pi}}}
@@ -104,10 +104,10 @@
 
 \urlstyle{rm} %so it doesn't use a typewriter font for url's.
 
-% Here are a few math abbreviations that may be useful. Note that math 
+% Here are a few math abbreviations that may be useful. Note that math
 % variables should generally be set in italic, vectors in bold italic, and
-% constants, such as e and i should be upright. Operators like the 'd' in 
-% dx  and 'D' in D/Dt should also be upright. 
+% constants, such as e and i should be upright. Operators like the 'd' in
+% dx  and 'D' in D/Dt should also be upright.
 \newcommand{\ir}{\mathrm{i}}
 \newcommand{\dr}{\mathrm{d}}
 \newcommand{\D}{\mathrm{D}}
@@ -121,7 +121,7 @@
 
 % These are some of my math shortcuts
 \newcommand{\mb}[1]{\boldsymbol{#1}} % math bold font
-\newcommand{\ol}[1]{\overline{#1}}   
+\newcommand{\ol}[1]{\overline{#1}}
 \newcommand{\x}{\times}
 \newcommand{\mO}{\mathcal{O}}
 \newcommand{\ubr}{\underbracket}
