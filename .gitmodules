@@ -1,3 +1,6 @@
 [submodule "misc/export_fig"]
 	path = misc/export_fig
 	url = https://github.com/dcherian/export_fig.git
+[submodule "misc/cptcmap-pkg"]
+	path = misc/cptcmap-pkg
+	url = https://github.com/kakearney/cptcmap-pkg.git
