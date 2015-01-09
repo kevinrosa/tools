@@ -23,12 +23,13 @@ function [fname] = roms_find_file(dirin,type)
     if size(in,1) > 1
         ii = 1;
         while size(in,1) > 1
-            if strcmpi(in(ii,:).name,'floats.in') || ...
-                    strcmpi(in(ii,:).name,'stations.in') || ...
-                    (strfind(in(ii,:).name,'rst') &&  ...
-                        strfind(in(ii,:).name,'.in'))
-               in(ii,:) = [];
-               continue
+            if strcmpi(in(ii,:).name,'floats.in') | ...
+                    strcmpi(in(ii,:).name,'stations.in') | ...
+                    ( isempty(strfind(in(ii,:).name,'rst') | ...
+                              strfind(in(ii,:).name, '.#')) &  ...
+                      strfind(in(ii,:).name,'.in'))
+                in(ii,:) = [];
+                continue
             end
             ii = ii+1;
         end
@@ -41,8 +42,8 @@ function [fname] = roms_find_file(dirin,type)
     end
     
     % files from *.in 
-    if strcmpi(type,'ini') || strcmpi(type,'bry') ||  strcmpi(type,'grd') ...
-            || strcmpi(type, 'fpos')
+    if strcmpi(type,'ini') | strcmpi(type,'bry') |  strcmpi(type,'grd') ...
+            | strcmpi(type, 'fpos')
         fname = ['/config/' grep_in([fname in],type)];
         return;
     end
