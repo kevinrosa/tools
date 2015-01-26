@@ -1,3 +1,6 @@
+% function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
+%                        volume,stride,grd, ftype, dtype)
+
 function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
                         volume,stride,grd, ftype, dtype)
     
