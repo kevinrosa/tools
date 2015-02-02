@@ -4,3 +4,6 @@
 [submodule "misc/cptcmap-pkg"]
 	path = misc/cptcmap-pkg
 	url = https://github.com/kakearney/cptcmap-pkg.git
+[submodule "oceanography/jlab"]
+	path = oceanography/jlab
+	url = git@github.com:dcherian/jlab
