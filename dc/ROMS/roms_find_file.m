@@ -14,12 +14,43 @@ function [fname] = roms_find_file(dirin,type)
             dirin = dirin(1:index(end));
         end
     end
-    
+
+    % floats
+    if strcmpi(type,'flt')
+        fnames = dir([dirin '/*_flt*.nc*']);
+    end
+
+    if strcmpi(type,'his')
+        fnames = dir([dirin '/*_his*.nc*']);
+        if isempty(fnames)
+            fnames = dir([dirin '/*_avg*.nc*']);
+            disp('Using avg files instead.');
+        end
+    end
+
+    if strcmpi(type,'avg')
+        fnames = dir([dirin '/*_avg*.nc*']);
+        if isempty(fnames)
+            fnames = dir([dirin '/*_his*.nc*']);
+            disp('Using his files instead.');
+        end
+    end
+
+    % convert from struct to names
+    if strcmpi(type, 'his') || strcmpi(type, 'avg') || strcmpi(type, ...
+                                                          'flt')
+        clear fname
+        for kk=1:size(fnames)
+            fname{kk}= fnames(kk,:).name;
+        end
+        return;
+    end
+
     if isempty(strfind(dirin,'config')), fname = [dirin '/config/']; end
     % ls gives different results on windows and linux
     %in = ls([fname '/*.in']);
     in = dir([fname '/*.in']);
-    
+
     if size(in,1) > 1
         ii = 1;
         while size(in,1) > 1
@@ -40,41 +71,13 @@ function [fname] = roms_find_file(dirin,type)
     catch ME
         error('Cannot find *.in file. check config folder');
     end
-    
-    % files from *.in 
+
+    % files from *.in
     if strcmpi(type,'ini') | strcmpi(type,'bry') |  strcmpi(type,'grd') ...
             | strcmpi(type, 'fpos')
         fname = ['/config/' grep_in([fname in],type)];
         return;
     end
-    
-    % floats
-    if strcmpi(type,'flt')
-        fnames = dir([dirin '/*_flt*.nc*']);
-    end
-
-    if strcmpi(type,'his')
-        fnames = dir([dirin '/*_his*.nc*']);
-        if isempty(fnames)
-            fnames = dir([dirin '/*_avg*.nc*']); 
-            disp('Using avg files instead.');
-        end
-    end
-    
-    if strcmpi(type,'avg')
-        fnames = dir([dirin '/*_avg*.nc*']);
-        if isempty(fnames)
-            fnames = dir([dirin '/*_his*.nc*']); 
-            disp('Using his files instead.');
-        end
-    end
-
-    % convert from struct to names
-    clear fname
-    for kk=1:size(fnames)
-        fname{kk}= fnames(kk,:).name;
-    end
-    
 
 % runs grep on input file
 function [str] = grep_in(fname,type)
