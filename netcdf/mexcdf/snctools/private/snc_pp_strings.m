@@ -11,13 +11,36 @@ elseif strcmp(version('-release'),'14')
 end
 
 
-% Java says that the variable is laid out in row-major order.
-if numel(shape) == 1
-    values = cell([1 shape]);
-else
-    values = cell(shape);
+% Make it a 1D vector until we know how to shape it properly.
+values = cell([1 prod(shape)]);
+
+
+switch class(jdata.getObject(0))
+    case 'opendap.dap.DString'
+        for j = 1:prod(shape)
+            values{j} = char(jdata.getObject(j-1).getValue());
+        end
+        
+    otherwise       
+        for j = 1:prod(shape)
+            values{j} = jdata.getObject(j-1);
+        end
 end
 
-for j = 1:prod(shape)
-    values{j} = jdata.getObject(j-1);
+% If just a single string, then do not store it as a cell array.
+% netcdf-java treats nc_char as just a single-valued case of nc_string, 
+% but mexcdf cannot do this.
+if numel(values) == 1
+    values = values{1};
+else
+    % Ok more than one value string value.  If a 1D vector, make it a row
+    % vector.  
+    %values = reshape(values, fliplr(shape));
+    sz = size(values);
+    if sz(1) == 1
+        % already 1D, nothing to do.
+    else sz(2) == 1
+        values = values';
+    end
 end
+

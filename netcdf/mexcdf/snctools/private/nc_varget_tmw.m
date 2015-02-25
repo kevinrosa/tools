@@ -74,6 +74,10 @@ end
 
 nvdims = numel(dimids);
 var_size = get_varsize(gid,varid,preserve_fvd);
+if any(var_size==0)
+    values = zeros(var_size); % values = [];
+    return
+end
 
 [start,count,stride] = snc_get_indexing(nvdims,var_size,varargin{:});
 
@@ -120,10 +124,6 @@ elseif ~preserve_fvd
     values = permute(values,pv);
 end
 
-
-
-% remove any singleton dimensions.
-values = squeeze(values);
 
 
 

@@ -18,6 +18,9 @@ switch(mode)
         ncfile = fullfile(testroot,'testdata/varget.nc');
         run_local_tests(ncfile,testroot);
 
+		test_singleton_dimension(ncfile);
+
+
     case 'netcdf4-classic'
         ncfile = fullfile(testroot,'testdata/varget4.nc');
         run_local_tests(ncfile,testroot);
@@ -87,7 +90,9 @@ function test_enhanced_atomic_datatypes(ncfile)
 
 % int64 datatypes should NOT be scaled into double precision
 act_data = nc_varget(ncfile,'y');
-exp_data = int64([0:9]');
+
+exp_data = 0:9;
+exp_data = int64(exp_data');
 
 if ~isequal(act_data,exp_data)
     error('failed');
@@ -497,6 +502,26 @@ return
 
 
 %--------------------------------------------------------------------------
+function test_zero_size ( ncfile )
+% If the variable is empty, then we shouldn't necessarily error out.
+
+expSize = [0 4];
+
+if getpref('SNCTOOLS','PRESERVE_FVD',false)
+    expSize = fliplr(expSize);
+end
+data = nc_varget(ncfile,'c');
+actSize = size(data);
+if ~isequal(actSize,expSize)
+    error('Zero size mismatch.');
+end
+
+
+
+
+
+
+%--------------------------------------------------------------------------
 function test_inf_count ( ncfile )
 % If the count has Inf anywhere, treat that as meaning to "retrieve unto
 % the end of the file.
@@ -656,8 +681,6 @@ ncfile = 'foo.nc';
 
 info = nc_info(ncfile);
 
-nc_adddim(ncfile,'time',0);
-
 clear v;
 if ~strcmp(info.Format,'HDF4')
     v.Name = 'time';
@@ -776,6 +799,7 @@ expData = [7199 6645 237; 6075 5513 112];
 if ~getpref('SNCTOOLS','PRESERVE_FVD',false)
     start = fliplr(start); count = fliplr(count); stride = fliplr(stride);
     expData = expData';
+    expData = reshape(expData, [1 1 1 3 2]);
 end
 
 actData = nc_varget(gribfile,'Potential_vorticity',start,count,stride);
@@ -796,6 +820,7 @@ expData = [7199 4388 6645; 3625 2257 6847];
 if ~getpref('SNCTOOLS','PRESERVE_FVD',false)
     start = fliplr(start); count = fliplr(count);
     expData = expData';
+    expData = reshape(expData,[1 1 1 3 2]);
 end
 
 actData = nc_varget(gribfile,'Potential_vorticity',start,count);
@@ -834,6 +859,7 @@ end
 return
 %--------------------------------------------------------------------------
 function test_read_grib_full_var_double_precision(gribfile)
+
 actData = nc_varget(gribfile,'lon');
 expData = 10*(0:35)';
 if actData ~= expData
@@ -899,6 +925,7 @@ test_read_single_value_from_2d_variable(ncfile);
 test_read3x2hyperslabFrom2dVariable ( ncfile );
 test_stride_with_negative_count ( ncfile );
 test_inf_count ( ncfile );
+test_zero_size ( ncfile );
 
 test_read_singleton_variable ( ncfile );
 test_readFullDoublePrecisionVariable ( ncfile );
@@ -916,6 +943,8 @@ regression_NegSize(ncfile);
 
 test_bad_fill_value(testroot);
 test_bad_missing_value(testroot);
+test_not_full_path;
+
 
 v = version('-release');
 switch(v)
@@ -933,7 +962,18 @@ return
 
 
 
-
+%--------------------------------------------------------------------------
+function test_not_full_path()
+% verify that we can read from a file that is on the matlab path.
+v = version('-release');
+switch(v)
+    case {'14','2006a','2006b','2007a','2007b','2008a'}
+        % no example.nc yet
+        return;
+    otherwise
+        % It's enough that we do not error out.
+        nc_varget('example.nc','temperature');
+end
 %--------------------------------------------------------------------------
 function test_indices_are_cols(ncfile)
 
@@ -951,6 +991,8 @@ end
 function run_opendap_tests()
 
 test_readOpendapVariable;
+test_1D_char_opendap_variable;
+test_2D_char_opendap_variable;
 
 v = version('-release');
 switch(v)
@@ -962,24 +1004,76 @@ end
 return
 
 
+%--------------------------------------------------------------------------
+function test_1D_char_opendap_variable ()
+
+if ~getpref('SNCTOOLS','USE_NETCDF_JAVA', false)
+    fprintf('\n\t\t\tOPeNDAP char var tests filtered out if USE_NETCDF_JAVA\n');
+    fprintf('\t\t\tpreference not set.  Check the README.\n');
+    return
+end
+
+% Should be 65 chars long.
+url = 'http://dtvirt5.deltares.nl:8080/thredds/dodsC/opendap/test/matlab-ncread-error-classic-65.nc';
+data = nc_varget(url,'str');
+if numel(data) ~= 65
+    error('failed');
+end
+return
 
 
+%--------------------------------------------------------------------------
+function test_2D_char_opendap_variable ()
+% 2D strings seem to be treated differently.
 
+% URL is no longer available.
+% 10/31/2013
+return
 
+if ~getpref('SNCTOOLS','USE_NETCDF_JAVA', false)
+    fprintf('\n\t\t\tOPeNDAP char var tests filtered out if USE_NETCDF_JAVA\n');
+    fprintf('\t\t\tpreference not set.  Check the README.\n');
+    return
+end
 
+pfd = getpref('SNCTOOLS','PRESERVE_FVD');
 
+url = 'http://www.marine.csiro.au/dods/nph-dods/dods-data/test_data/test_1.nc';
+info = nc_info(url);
+actData = nc_varget(url,'uchar2');
 
+expData = ['defghijklmn';
+           'fghijklmnop';
+           'hijklmnopqr';
+           'jklmnopqrst';
+           'lmnopqrstuv';
+           'nopqrstuvwx';
+           'pqrstuvwxyz';
+           'rstuvwxyzab';
+           'ccccccccccc';
+           'ccccccccccc';
+           'ccccccccccc';
+           'ccccccccccc' ];
+expData = num2cell(expData);
 
+if pfd
+    expData = expData';
+end
 
+if strcmp(info.Format,'netcdf-java')
+    if ~isequal(actData,expData)
+        error('failed');
+    end
+end
 
-
+return
 
 
 %--------------------------------------------------------------------------
 function test_readOpendapVariable ()
     % use data of today as the server has a clean up policy
     today = datestr(floor(now),'yyyymmdd');
-    url = ['http://motherlode.ucar.edu:8080/thredds/dodsC/satellite/CTP/SUPER-NATIONAL_1km/current/SUPER-NATIONAL_1km_CTP_',today,'_0000.gini'];
+    url = ['http://thredds.ucar.edu/thredds/dodsC/satellite/CTP/SUPER-NATIONAL_1km/current/SUPER-NATIONAL_1km_CTP_',today,'_0000.gini'];
     
     % I have no control over what this value is, so we'll just assume it
     % is correct.
@@ -987,4 +1081,31 @@ function test_readOpendapVariable ()
 return
 
 
+
+%--------------------------------------------------------------------------
+function test_singleton_dimension(ncfile)
+% Verify the size of data being read from a classic file when the variable
+% has an unlimited dimension with extent of 1.
+
+% Write a single timestep into the variable.
+copyfile(ncfile,'foo.nc');
+pv = getpref('SNCTOOLS','PRESERVE_FVD',false);
+if pv
+	exp_data = reshape(1:24,[6 4]);
+    nc_varput('foo.nc','d',exp_data, [0 0 0], [6 4 1])
+else
+	exp_data = reshape(1:24,[1 4 6]);
+    nc_varput('foo.nc','d',exp_data);
+end
+
+
+act_data = nc_varget('foo.nc','d');
+if ~isequal(act_data,exp_data)
+	error('failed');
+end
+
+act_data = nc_vargetr('foo.nc','d');
+if ~isequal(act_data,exp_data)
+	error('failed');
+end
 

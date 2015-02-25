@@ -32,7 +32,6 @@ warning('on', 'SNCTOOLS:nc_archive_buffer:deprecated' );
 warning('on', 'SNCTOOLS:nc_datatype_string:deprecated' );
 warning('on', 'SNCTOOLS:nc_diff:deprecated' );
 warning('on', 'SNCTOOLS:nc_getall:dangerous' );
-warning('on', 'SNCTOOLS:snc2mat:deprecated' );
 
         
 
@@ -76,7 +75,6 @@ warning('off', 'SNCTOOLS:nc_archive_buffer:deprecated' );
 warning('off', 'SNCTOOLS:nc_datatype_string:deprecated' );
 warning('off', 'SNCTOOLS:nc_diff:deprecated' );
 warning('off', 'SNCTOOLS:nc_getall:dangerous' );
-warning('off', 'SNCTOOLS:snc2mat:deprecated' );
 
 
 
@@ -88,7 +86,7 @@ v = version('-release');
 switch(v)
     case {'14','2006a','2006b','2007a','2007b','2008a'}
 		try
-		    v = mexnc('inq_libvers');
+		    mexnc('inq_libvers');
 			%  mexnc is available, so do not use java
             fprintf('\tjava netcdf-3 testing filtered out on ');
             fprintf('configurations where mexnc is available.\n ');
@@ -117,8 +115,21 @@ end
 
 
 run_http_tests;
-run_opendap_tests;
 run_grib_tests;
+run_thredds_tests;
+
+% Don't use java for opendap tests on 2012a
+switch(v)
+    case {'14','2006a','2006b','2007a','2007b','2008a','2008b','2009a','2009b', ...
+            '2010a','2010b','2011a','2011b'}
+        run_opendap_tests;
+    otherwise
+        if getpref('SNCTOOLS','USE_NETCDF_JAVA',false)
+            run_opendap_tests;
+        else
+            fprintf('\tOPeNDAP tests not run via java on %s when USE_NETCDF_JAVA preference is false.\n');
+        end
+end
 
 %--------------------------------------------------------------------------
 function test_mexnc_backend()
@@ -163,14 +174,10 @@ v = version('-release');
 if ~strcmp(v,'14')
     % HDF4 not supported on R14.
     run_hdf4_read_tests;
-    if getpref('SNCTOOLS','TEST_HDF4_WRITE',false)
-        run_hdf4_write_tests;
-    else
-        fprintf('\tHDF4 write testing filtered out where TEST_HDF4_WRITE preference set to false.\n');
-    end
+
+    % We don't bother with HDF4 writing anymore.
 end
 
-v = version('-release');
 switch(v)
     case { '14','2006a','2006b','2007a','2007b','2008a'}
         fprintf('\ttmw testing filtered out on release %s...\n', v);
@@ -188,6 +195,14 @@ switch(v)
         run_nc4_enhanced_read_tests;
 end
 
+% Run opendap tests on 2012a
+switch(v)
+    case {'2006a','2006b','2007a','2007b','2008a','2008b','2009a','2009b', ...
+            '2010a','2010b','2011a','2011b'}
+        fprintf('\tOPeNDAP tests not run via TMW backend on %s.\n', v);
+    otherwise
+        run_opendap_tests;
+end
 
 return
 %--------------------------------------------------------------------------
@@ -237,8 +252,7 @@ test_nc_getvarinfo;
 test_nc_getbuffer;
 test_nc_info;
 test_nc_getdiminfo;
-test_snc2mat;
-%test_nc_getall;
+test_nc_isdim;
 test_nc_dump;
 
 %--------------------------------------------------------------------------
@@ -262,14 +276,31 @@ test_nc_getvarinfo(mode);
 test_nc_getbuffer(mode);
 test_nc_info(mode);
 test_nc_getdiminfo(mode);
+test_nc_isdim(mode);
 
 test_nc_dump('nc-4');
 
 %--------------------------------------------------------------------------
 function run_nc4_enhanced_read_tests()
 
+v = version('-release');
+switch(v)
+    case {'2006a','2006b','2007a','2007b','2008a','2008b','2009a', ...
+            '2009b','2010a','2010b','2011a'}
+        fprintf('\tfiltering out enhanced-model tests on %s.\n', v);
+        return;
+end
+
+
 mode = 'netcdf4-enhanced';
-fprintf('\tTesting %s...\n',mode);
+fprintf('\tTesting %s... \n',mode);
+
+v = nc_info('example.nc');
+if strcmp(v.Format,'netcdf-java')
+    fprintf('\t\tFiltering out enhanced-model tests when netcdf-java is the read backend.\n');
+    return;
+end
+
 test_nc_varget(mode);
 test_nc_info(mode);
 test_nc_attget(mode);
@@ -317,7 +348,7 @@ return
 function run_http_tests()
 fprintf('\tTesting java/http...\n');
 
-if getpref('SNCTOOLS','TEST_REMOTE',false) && getpref('SNCTOOLS','TEST_HTTP',false)
+if getpref('SNCTOOLS','TEST_REMOTE',false) && getpref('SNCTOOLS','TEST_HTTP',false) && getpref('SNCTOOLS','USE_NETCDF_JAVA',false)
     test_nc_attget('http');
     test_nc_iscoordvar('http');
     test_nc_isvar('http');
@@ -329,9 +360,38 @@ end
 
 
 fprintf('\t\tjava http testing filtered out when either of SNCTOOLS preferences ');
-fprintf('\n\t\t''TEST_REMOTE'' or ''TEST_HTTP'' is false.\n');
+fprintf('\n\t\t''TEST_REMOTE'' or ''TEST_HTTP'' or ''USE_NETCDF_JAVA'' is false.\n');
 
 return
+
+%--------------------------------------------------------------------------
+function run_thredds_tests()
+fprintf('\tSkipping THREDDS tests...\n')
+return
+fprintf('\tTesting THREDDS... ');
+
+v = version('-release');
+switch(v)
+	case '14'
+        fprintf('\n\t\tTHREDDS testing filtered out on R14.\n');
+        return
+end
+
+import ucar.nc2.*
+if ~exist('NetcdfFile','class')
+    fprintf('\n\t\tTHREDDS testing filtered out when netcdf-java is not available.\n');
+    return
+end
+
+
+if getpref('SNCTOOLS','TEST_REMOTE',false)
+    test_thredds_info;
+    return
+end
+
+fprintf('\n');
+fprintf('\t\tTHREDDS testing filtered out when SNCTOOLS preference ');
+fprintf('\n\t\t''TEST_REMOTE'' is false.\n');
 
 %--------------------------------------------------------------------------
 function run_grib_tests()
@@ -356,6 +416,11 @@ if ~exist('NetcdfFile','class')
 end
 
 
+if ~getpref('SNCTOOLS','TEST_GRIB2',false)
+	fprintf('\n\t\tjava GRIB testing filtered out when SNCTOOLS preferences ');
+	fprintf('\n\t\t''TEST_GRIB2'' is false.\n');
+	return
+end
 fprintf('\n');
 test_nc_attget('grib');
 test_nc_info('grib');
@@ -365,6 +430,7 @@ test_nc_varget('grib');
 
 %--------------------------------------------------------------------------
 function run_opendap_tests()
+
 fprintf('\tTesting OPeNDAP...\n');
 
 if ~(getpref('SNCTOOLS','TEST_REMOTE',false) && getpref('SNCTOOLS','TEST_OPENDAP',false))
@@ -373,19 +439,25 @@ if ~(getpref('SNCTOOLS','TEST_REMOTE',false) && getpref('SNCTOOLS','TEST_OPENDAP
     return
 end
 
-import ucar.nc2.*
-if ~exist('NetcdfFile','class')
-    fprintf('\t\tOPeNDAP testing filtered out when netcdf-java is not available.\n');
-    return
+v = version('-release');
+switch(v)
+    case {'14','2006a','2006b','2007a','2007b','2008a','2008b', ...
+        '2009a','2009b','2010a','2010b','2011a','2011b' }
+        import ucar.nc2.*
+        if ~exist('NetcdfFile','class')
+            fprintf('\t\tOPeNDAP testing filtered out when netcdf-java is not available.\n');
+            return
+        end
+    
+    otherwise
+        % 
 end
-
 
 test_nc_info('opendap');
 test_nc_varget('opendap');
 
 % If we are using mexnc or if the release is 8b or higher, run this
 % system-level test.
-v = version('-release');
 switch(v)
 	case { '14','2006a','2006b','2007a','2007b','2008a'}
 		;
