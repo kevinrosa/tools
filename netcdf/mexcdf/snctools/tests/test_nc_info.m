@@ -43,6 +43,10 @@ function run_nc4_enhanced_tests()
 
 testroot = fileparts(mfilename('fullpath'));
 
+% Multiple unlimited dimensions.
+ncfile = [testroot '/testdata/multi_d_unlim.nc'];
+test_multiple_unlimited_dimensions(ncfile);
+
 v = version('-release');
 switch(v)
     case {'14','2006a','2006b','2007a','2007b','2008a','2008b','2009a',...
@@ -56,6 +60,7 @@ end
 ncfile = [testroot '/testdata/moons.nc'];
 test_string_variable(ncfile);
 test_global_string_attribute(ncfile);
+test_single_string_attribute(ncfile);
 test_empty_string_attribute(ncfile);
 
 % Enums
@@ -80,6 +85,25 @@ test_root_group_compound_with_strings(ncfile);
 
 ncfile = [testroot '/testdata/tst_compounds2.nc'];
 test_nested_compounds(ncfile);
+
+
+%--------------------------------------------------------------------------
+function test_multiple_unlimited_dimensions(ncfile)
+
+info = nc_info(ncfile);
+
+act_data = info.Dimension(2).Unlimited;
+exp_data = true;
+if ~isequal(act_data,exp_data)
+    error('failed');
+end
+
+
+act_data = info.Dimension(3).Unlimited;
+exp_data = true;
+if ~isequal(act_data,exp_data)
+    error('failed');
+end
 
 %--------------------------------------------------------------------------
 function test_nested_compounds(ncfile)
@@ -403,6 +427,20 @@ if ~isequal(act_data,exp_data)
 end
 
 %--------------------------------------------------------------------------
+function test_single_string_attribute(ncfile)
+% If we have just one NC_STRING value, make it a char array instead of a 
+% cellstr.
+info = nc_info(ncfile);
+act_data = info.Group.Attribute;
+exp_data = struct('Name','Desdemona', ...
+    'Nctype', 12, ...
+    'Datatype', 'string', ...
+	'Value', 'Juliet');
+if ~isequal(act_data,exp_data)
+    error('failed');
+end
+
+%--------------------------------------------------------------------------
 function test_empty_string_attribute(ncfile)
 
 info = nc_info(ncfile);
@@ -595,56 +633,96 @@ return
 
 
 
+%--------------------------------------------------------------------------
+function run_global_att_with_newline_test()
+% With netcdf-java, the attribute in question is two strings.
+today = datestr(floor(now),'yyyymmdd');
+url = ['http://nomads.ncep.noaa.gov:9090/dods/wave/mww3/' today '/multi_1.ak_10m' today '_00z'];
+
+info = nc_info(url);
+
+if getpref('SNCTOOLS', 'USE_NETCDF_JAVA')
+    if ~strcmp(info.Attribute(2).Value{1}, 'COARDS')
+        error('failed')
+    end
+    
+    if ~strcmp(info.Attribute(2).Value{2}, 'GrADS')
+        error('failed')
+    end
+end
 
 %--------------------------------------------------------------------------
 function run_opendap_tests()
 
 run_motherlode_test;
+run_global_att_with_newline_test;
+
 %--------------------------------------------------------------------------
 function run_motherlode_test (  )
 
-if getpref('SNCTOOLS','TEST_REMOTE',false) && ...
-        getpref ( 'SNCTOOLS', 'TEST_OPENDAP', false ) 
-    
-    testroot = fileparts(mfilename('fullpath'));
-    load([testroot filesep 'testdata/nc_info.mat']);
-    % use data of today as the server has a clean up policy
-    today = datestr(floor(now),'yyyymmdd');
-    url = ['http://motherlode.ucar.edu:8080/thredds/dodsC/satellite/CTP/SUPER-NATIONAL_1km/current/SUPER-NATIONAL_1km_CTP_',today,'_0000.gini'];
-	fprintf('\n\t\t\tTesting remote DODS access %s...  ', url );
-    
-    info = nc_info(url);
 
-    % R14 differs in the way it returns attributes.  Just get rid of the
-    % attributes in this case.
-    v = version('-release');
-    if strcmp(v,'14')
+testroot = fileparts(mfilename('fullpath'));
+load([testroot filesep 'testdata/nc_info.mat']);
+
+v = version('-release');
+switch(v)
+    case {'14','2006a','2006b','2007a','2007b','2008a','2008b', ...
+            '2009a','2009b','2010a','2010b','2011a','2011b'}
+        exp_data = d.opendap.motherlode;
+    otherwise
+        if getpref('SNCTOOLS','USE_NETCDF_JAVA',false)
+            exp_data = d.opendap.motherlode;
+        else
+            exp_data = d.opendap.motherlode_tmw;
+        end
+end
+
+
+% use data of today as the server has a clean up policy
+today = datestr(floor(now),'yyyymmdd');
+url = ['http://thredds.ucar.edu/thredds/dodsC/satellite/CTP/SUPER-NATIONAL_1km/current/SUPER-NATIONAL_1km_CTP_',today,'_0000.gini'];
+fprintf('\n\t\t\tTesting remote DODS access %s...  ', url );
+
+info = nc_info(url);
+
+% R14 (2.2.0) differs in the way it returns attributes.  Just get rid of 
+% the attributes in this case.
+% R2013a differs as well (4.3).
+switch(v)
+    case {'14', '2013a'}
         fprintf('\n\t\t\t\tNo attribute testing on R14.\n');
         for j = 1:numel(info.Dataset)
             info.Dataset(j).Attribute = [];
-            d.opendap.motherlode.Dataset(j).Attribute = [];
+            exp_data.Dataset(j).Attribute = [];
         end
         
         % The 4th dataset is 'char' in R14, but 'string' otherwise.
         info.Dataset(4).Nctype = 12;
         info.Dataset(4).Datatype = 'string';
-    end
-    
-    
-    % Reverse the order of the Dimension and Size fields if using row major
-    % order.
-    if getpref('SNCTOOLS','PRESERVE_FVD',false) == false
-        for j = 1:numel(info.Dataset)
-            info.Dataset(j).Size = fliplr(info.Dataset(j).Size);
-            info.Dataset(j).Dimension = fliplr(info.Dataset(j).Dimension);
-        end
-    end
-
-    if ~isequal(info.Dataset,d.opendap.motherlode.Dataset)
-        error('failed');
-    end
-
+        
 end
+
+
+% Reverse the order of the Dimension and Size fields if using row major
+% order.
+if getpref('SNCTOOLS','PRESERVE_FVD',false) == false
+    for j = 1:numel(info.Dataset)
+        info.Dataset(j).Size = fliplr(info.Dataset(j).Size);
+        info.Dataset(j).Dimension = fliplr(info.Dataset(j).Dimension);
+    end
+end
+
+for j = 1:numel(info.Dataset) 
+    if strcmp(info.Dataset(j).Name, 'Stereographic') || strcmp(info.Dataset(j).Name, 'CTP')
+        % skip this one, there's a disagreement as to
+        % what the attributes are (earth_radius).
+        continue
+    end
+    if ~isequal(info.Dataset(j),exp_data.Dataset(j))
+        error('Dataset %d failed validation', j);
+    end
+end
+
 return
 
 

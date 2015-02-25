@@ -1,8 +1,11 @@
 % calculates Ertel PV at interior RHO points (horizontal plane) and midway between rho points in the vertical
-%       [pv] = roms_pv(fname,tindices)
+%       [pv] = roms_pv(fname,tindices, volume, outname, ftype)
+% volume is the intended output. roms_pv adjusts volume to get all
+% the information it needs to calculate PV.
 
-function [pv,xpv,ypv,zpv] = roms_pv(fname, tindices, outname, ftype)
+function [pv,xpv,ypv,zpv] = roms_pv(fname, tindices, volume, outname, ftype)
 
+totalstart = tic;
 if ~exist('ftype', 'var'), ftype = 'avg'; end
 if isdir(fname)
     dirname = fname;
@@ -17,10 +20,8 @@ else
     tpv = dc_roms_read_data(fname,'ocean_time');
     dirflag = 0;
 end
-vinfo = ncinfo(fname,'u');
-s     = vinfo.Size;
-dim   = length(s); 
-slab  = roms_slab(fname,0) + 6;
+
+slab  = roms_slab(fname,0) + 36;
 
 warning off
 grid = roms_get_grid(fname,fname,1,1);
@@ -29,11 +30,18 @@ warning on
 % parse input
 if ~exist('tindices','var'), tindices = []; end
 
+% parse volume
+for zz=1:size(volume,1)
+    if volume{zz,1} == 'z'
+        volume{zz,2} = volume{zz,2} - 1;
+        % volume{zz,3} = volume{zz,3} + 1;
+    end
+end
 [iend,tindices,dt,~,stride] = roms_tindices(tindices,slab,length(tpv));
 
 rho0  = ncread(fname,'R0');
 tpv = tpv(tindices(1):tindices(2));
-f   = ncread(fname,'f',[1 1],[Inf Inf]);
+f   = grid.f';
 
 xname = 'x_pv'; yname = 'y_pv'; zname = 'z_pv'; tname = 'ocean_time';
 xrname = 'x_rv'; yrname = 'y_rv'; zrname = 'z_rv';
@@ -41,23 +49,39 @@ xrname = 'x_rv'; yrname = 'y_rv'; zrname = 'z_rv';
 xdname = 'xpv'; ydname = 'ypv'; zdname = 'zpv'; tdname = 'tpv';
 xdrname = 'xrv'; ydrname = 'yrv'; zdrname = 'zrv';
 
-grid1.xv = repmat(grid.x_v',[1 1 grid.N]);
-grid1.yv = repmat(grid.y_v',[1 1 grid.N]);
-grid1.zv = permute(grid.z_v,[3 2 1]);
+if exist('volume', 'var') && ~isempty(volume)
+    [grid1.xv, grid1.yv, grid1.zv, vol] = dc_roms_extract(grid, 'v', ...
+                                                      volume,1);
+    [grid1.xu, grid1.yu, grid1.zu, vol] = dc_roms_extract(grid, 'u', ...
+                                                      volume,1);
+    [grid1.xw, grid1.yw, grid1.zw, vol] = dc_roms_extract(grid, 'w', ...
+                                                      volume,1);
+    [grid1.xr, grid1.yr, grid1.zr, vol] = dc_roms_extract(grid, 'rho', ...
+                                                      volume,1);
+else
+    grid1.xv = repmat(grid.x_v',[1 1 grid.N]);
+    grid1.yv = repmat(grid.y_v',[1 1 grid.N]);
+    grid1.zv = permute(grid.z_v,[3 2 1]);
 
-grid1.xu = repmat(grid.x_u',[1 1 grid.N]);
-grid1.yu = repmat(grid.y_u',[1 1 grid.N]);
-grid1.zu = permute(grid.z_u,[3 2 1]);
+    grid1.xu = repmat(grid.x_u',[1 1 grid.N]);
+    grid1.yu = repmat(grid.y_u',[1 1 grid.N]);
+    grid1.zu = permute(grid.z_u,[3 2 1]);
 
-grid1.xr = repmat(grid.x_rho',[1 1 grid.N]);
-grid1.yr = repmat(grid.y_rho',[1 1 grid.N]);
-grid1.zr = permute(grid.z_r,[3 2 1]);
+    grid1.xr = repmat(grid.x_rho',[1 1 grid.N]);
+    grid1.yr = repmat(grid.y_rho',[1 1 grid.N]);
+    grid1.zr = permute(grid.z_r,[3 2 1]);
 
-grid1.zw = grid.z_w;
-grid1.s_w = grid.s_w;
-grid1.s_rho = grid.s_rho;
+    grid1.zw = grid.z_w;
+end
+
+grid1.s_w = grid.s_w(vol(3,1):vol(3,2));
+grid1.s_rho = grid.s_rho(vol(3,1):vol(3,2));
 
 totvol = sum(grid.dV(:));
+
+sz    = size(grid1.xu);
+dim   = length(sz) + 1;
+
 %% setup netcdf file
 
 if ~exist('outname','var') || isempty(outname), outname = 'ocean_vor.nc'; end
@@ -74,20 +98,20 @@ end
 %rv_scale = 1e-4;
 % steal chunking from ROMS
 rhoinfo = ncinfo(fname, 'rho');
-chunksize = rhoinfo.ChunkSize;
+chunksize = min(rhoinfo.ChunkSize,[sz(1)-1 sz(2)-2 sz(3)-1 length(tpv)]);
 
 nccreate(outname,'pv', 'Format','netcdf4', 'DeflateLevel',5,'Shuffle',true,...
-    'Dimensions', {xdname s(1)-1 ydname s(2)-2 zdname s(3)-1 tdname length(tpv)}, ...
+    'Dimensions', {xdname sz(1)-1 ydname sz(2)-2 zdname sz(3)-1 tdname length(tpv)}, ...
     'ChunkSize', chunksize, 'Datatype', 'single');
 nccreate(outname,'rv', 'Format','netcdf4', 'DeflateLevel',5,'Shuffle',true,...
-    'Dimensions', {xdrname s(1) ydrname s(2)-1 zdrname s(3)-1 tdname length(tpv)}, ...
+    'Dimensions', {xdrname sz(1) ydrname sz(2)-1 zdrname sz(3)-1 tdname length(tpv)}, ...
     'ChunkSize', chunksize, 'Datatype', 'single');
-nccreate(outname,xname,'Dimensions',{xdname s(1)-1 ydname s(2)-2 zdname s(3)-1});
-nccreate(outname,yname,'Dimensions',{xdname s(1)-1 ydname s(2)-2 zdname s(3)-1});
-nccreate(outname,zname,'Dimensions',{xdname s(1)-1 ydname s(2)-2 zdname s(3)-1});
-nccreate(outname,xrname,'Dimensions',{xdrname s(1)  ydrname s(2)-1 zdrname s(3)-1});
-nccreate(outname,yrname,'Dimensions',{xdrname s(1)  ydrname s(2)-1 zdrname s(3)-1});
-nccreate(outname,zrname,'Dimensions',{xdrname s(1)  ydrname s(2)-1 zdrname s(3)-1});
+nccreate(outname,xname,'Dimensions',{xdname sz(1)-1 ydname sz(2)-2 zdname sz(3)-1});
+nccreate(outname,yname,'Dimensions',{xdname sz(1)-1 ydname sz(2)-2 zdname sz(3)-1});
+nccreate(outname,zname,'Dimensions',{xdname sz(1)-1 ydname sz(2)-2 zdname sz(3)-1});
+nccreate(outname,xrname,'Dimensions',{xdrname sz(1)  ydrname sz(2)-1 zdrname sz(3)-1});
+nccreate(outname,yrname,'Dimensions',{xdrname sz(1)  ydrname sz(2)-1 zdrname sz(3)-1});
+nccreate(outname,zrname,'Dimensions',{xdrname sz(1)  ydrname sz(2)-1 zdrname sz(3)-1});
 nccreate(outname,tname,'Dimensions',{tdname length(tpv)});
 nccreate(outname,'intPV','Dimensions',{tdname length(tpv)});
 
@@ -116,19 +140,19 @@ for i=0:iend-1
     [read_start,read_count] = roms_ncread_params(dim,i,iend,slab,tindices,dt);
     tstart = read_start(end);
     tend   = read_start(end) + read_count(end) -1;
-    
+
     if dirflag
-        u = dc_roms_read_data(dirname,'u',[tstart tend],{},[],grid, ...
+        u = dc_roms_read_data(dirname,'u',[tstart tend],volume,[],grid, ...
                               ftype, 'single');
-        v = dc_roms_read_data(dirname,'v',[tstart tend],{},[],grid, ...
+        v = dc_roms_read_data(dirname,'v',[tstart tend],volume,[],grid, ...
                               ftype, 'single');
-        
+
         try
-            rho = dc_roms_read_data(dirname,'rho',[tstart tend],{},[],grid, ...
+            rho = dc_roms_read_data(dirname,'rho',[tstart tend],volume,[],grid, ...
                                     ftype, 'single');
         catch ME
             rho = rho0 -rho0 * misc.Tcoef* ...
-                dc_roms_read_data(dirname,'temp',[tstart tend],{},[],grid, ...
+                dc_roms_read_data(dirname,'temp',[tstart tend],volume,[],grid, ...
                                   ftype, 'single');
         end
     else
@@ -145,7 +169,7 @@ for i=0:iend-1
     pvstart = tic;
     [pv,xpv,ypv,zpv,rvor] = pv_cgrid(grid1,u,v,rho,f,rho0);
     toc(pvstart);
-    
+
     if i == 0
         % write grid
         ncwrite(outname,xname,xpv);
@@ -159,19 +183,19 @@ for i=0:iend-1
     ncwrite(outname,'pv',pv,read_start);
     ncwrite(outname,'rv',rvor,read_start);
     toc(ticstartwrt);
-    
+
     pvdV = bsxfun(@times,pv,avg1(grid.dV(2:end-1,2:end-1,:),3));
-    
-    intPV(tstart:tend) = squeeze(nansum(nansum(nansum(pvdV,1),2),3))./totvol; 
+
+    intPV(tstart:tend) = squeeze(nansum(nansum(nansum(pvdV,1),2),3))./totvol;
 end
 ncwrite(outname,'intPV',intPV);
 toc(ticstart);
 %save pv.mat pv xpv ypv zpv tpv intPV
 fprintf('\n Wrote file : %s \n\n',outname);
-
+toc(totalstart);
     %% old code
-    
+
 %     pv1    = avgx(avgz(bsxfun(@plus,avgy(vx - uy),f)))  .*  (tz(2:end-1,2:end-1,:,:));
 %     pv2    = (-1)*;
 %     pv3    = uz.*avgz(tx);
-    %pv = double((pv1 + avgy(pv2(2:end-1,:,:,:)) + avgx(pv3(:,2:end-1,:,:)))./avgz(lambda(2:end-1,2:end-1,:,:))); 
+    %pv = double((pv1 + avgy(pv2(2:end-1,:,:,:)) + avgx(pv3(:,2:end-1,:,:)))./avgz(lambda(2:end-1,2:end-1,:,:)));

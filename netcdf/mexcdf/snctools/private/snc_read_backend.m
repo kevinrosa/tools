@@ -48,7 +48,7 @@ mv = version('-release');
 
 fmt = snc_format(ncfile);
 
-% These cases have no alternatives.
+% For HDF4, there is no alternative.
 if strcmp(fmt,fmts.HDF4) 
     switch(mv)
         case {'14','2006a','2006b','2007a','2007b','2008a','2008b', ...
@@ -60,9 +60,51 @@ if strcmp(fmt,fmts.HDF4)
 
     fmt = fmts.HDF4;
     return
-elseif (strcmp(fmt,fmts.GRIB) || strcmp(fmt,fmts.GRIB2) || strcmp(fmt,fmts.URL))
-    % Always use netcdf-java for grib files or URLs (when java is enabled).
+end
 
+DEBUG = 0;
+if DEBUG
+    % Set DEBUG to 1 to force use of netcdf-java at all times.
+    % You shouldn't have to do this unless you are trying to
+    % find a bug somewhere.
+    retrieval_method = retrieval_methods.java; 
+    fmt = fmts.netcdf_java;
+    return
+end
+
+if strcmp(fmt,fmts.URL) 
+
+    % URLs must be handled by netcdf-java until R2012a.
+    switch(mv)
+        case {'14','2006a','2006b','2007a','2007b','2008a','2008b', ...
+                '2009a','2009b','2010a','2010b', '2011a', '2011b'} 
+            if ~have_java
+                error('snctools:noNetcdfJava', ...
+                    'netcdf-java must be available in order to read OPeNDAP URLs.');
+            end
+            retrieval_method = retrieval_methods.java; 
+            fmt = fmts.netcdf_java;
+
+        otherwise
+            % 12a and above has native matlab support for opendap.
+            if strcmpi(ncfile(1:5),'https')
+                % Still, use netcdf-java for SSL.
+                retrieval_method = retrieval_methods.java; 
+                fmt = fmts.netcdf_java;
+            elseif getpref('SNCTOOLS','USE_NETCDF_JAVA',false)
+                % Force the use of netcdf-java if the user
+                % really want it.
+                retrieval_method = retrieval_methods.java; 
+                fmt = fmts.netcdf_java;
+            else
+                retrieval_method = retrieval_methods.tmw;
+                fmt = fmts.NetCDF;
+            end
+    end
+
+elseif ( strcmp(fmt,fmts.GRIB) || strcmp(fmt,fmts.GRIB2) )
+
+    % Always use netcdf-java for grib files when java is enabled).
     if ~have_java
         error('snctools:noNetcdfJava', ...
             'netcdf-java must be available in order to read this.');

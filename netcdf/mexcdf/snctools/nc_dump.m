@@ -11,9 +11,16 @@ function nc_dump(file_name, varargin)
 %   with fid = fopen(...) instead of to screen (default fid=1: screen).
 %   NC_DUMP(NCFILE,LOCATION,<'fname'>) prints output to new file 'fname'.
 %
+%   NC_DUMP(NCFILE,LOCATION,fid,<keyword,value>) passes keyword-value
+%   pairs, LOCATION and fid must be supplied, use [] for defaults.
+%   NC_DUMP(NCFILE,LOCATION,fid,'h',false) writes data too (not human readable)
+%
 %   If netcdf-java is on the java classpath, NC_DUMP can also display 
-%   metadata for GRIB2 files and OPeNDAP URLS files as if they were netCDF 
-%   files.
+%   metadata for GRIB2 files as if they were netCDF files.
+%
+%   NC_DUMP will display OPeNDAP metadata as if they were netCDF files.
+%   This is native to MATLAB in R2012a, but requires netcdf-java on earler
+%   releases.
 %
 %   Setting the preference 'PRESERVE_FVD' to true will compel MATLAB to 
 %   display the dimensions in the opposite order from what the C utility 
@@ -22,28 +29,67 @@ function nc_dump(file_name, varargin)
 %   Example:  This example file is shipped with R2008b.
 %       nc_dump('example.nc');
 %  
-%   Example:  Display metadata for an OPeNDAP URL.  This requires the
-%   netcdf-java backend.
-%       url = 'http://coast-enviro.er.usgs.gov/models/share/balop.nc';
+%   Example:  Display metadata for an OPeNDAP URL.  On releases prior to
+%   2012b, this requires the netcdf-java backend.  Because URLs can often
+%   be so long, it is broken across multiple lines here for formatting 
+%   purposes.
+%       today = datestr(floor(now),'yyyymmdd');
+%       server = 'http://motherlode.ucar.edu:8080';
+%       dir = '/thredds/dodsC/satellite/CTP/SUPER-NATIONAL_1km/current';
+%       url = sprintf('%s%s/SUPER-NATIONAL_1km_CTP_%s_0000.gini',server,dir,today);
 %       nc_dump(url);
 %
 %   See also nc_info.
-
 location = ''; 
-fid = 1;
+fid      = 1;
+
+% ncdump.exe options
+%ncdump [-c|-h] [-v ...] [[-b|-f] [c|f]] [-l len] [-n name] [-p n[,n]] file
+%  [-c]             Coordinate variable data and header information
+%  [-h]             Header information only, no data
+%  [-v var1[,...]]  Data for variable(s) <var1>,... only
+%  [-b [c|f]]       Brief annotations for C or Fortran indices in data
+%  [-f [c|f]]       Full annotations for C or Fortran indices in data
+%  [-l len]         Line length maximum in data section (default 80)
+%  [-n name]        Name for netCDF (default derived from file name)
+%  [-p n[,n]]       Display floating-point values with less precision
+%  file             File name of input netCDF file
+
+OPT.h      = true; % -h
+OPT.hwidth = Inf;  % max no values per line
+
 switch(nargin)
+    case 0
+        help nc_dump
+        return
+    case 1
     case 2
         if ischar(varargin{1})
             location = varargin{1};
         else
             fid = varargin{1};
         end
+        varargin{1}   = [];
         
     case 3
         location = varargin{1};
-        fid = varargin{2};
-
+        fid      = varargin{2};
+        varargin(1:2) = [];
+        
+    otherwise
+       if ~isempty(varargin{1})
+          location = varargin{1};
+       end
+       if ~isempty(varargin{2})
+          fid = varargin{2};
+       end
+       varargin(1:2) = [];
 end
+
+keys = varargin(1:2:end);
+vals = varargin(2:2:end);
+
+ind = find(strcmp(keys,'h'));if any(ind);OPT.h = vals{ind};end;
 
 if ischar(fid)
     close_fid = 1;    
@@ -57,6 +103,10 @@ info = nc_info(file_name);
 fprintf (fid,'%s %s {\n',info.Format,info.Filename);
 
 dump_group(info,location,fid);
+
+if ~(OPT.h)
+   dump_group_data(info,location,fid,file_name,OPT);
+end
 
 fprintf(fid,'}\n');
 
@@ -103,10 +153,16 @@ if strcmp(group.Name,'/') && isfield(group,'Format') && strcmp(group.Format,'Net
 elseif ~strcmp(group.Name,'/')
     fprintf(fid,'} End Group %s\n\n', group.Name);   
 end
-fprintf('\n');
+fprintf(fid,'\n');
 
 return
 
+%--------------------------------------------------------------------------
+function dump_group_data(group,restricted_variable,fid,file_name,OPT)
+
+not_found = dump_variables_data(group.Dataset,restricted_variable,fid,file_name,OPT);
+
+return
 
 %--------------------------------------------------------------------------
 function dump_datatype_metadata(info,fid)
@@ -159,7 +215,7 @@ function dump_compound_datatype_metadata(info,fid)
 
 fprintf(fid,'    compound ''%s''\n', info.Name);
 for j = 1:numel(info.Type.Member)
-    fprintf('      %s %s\n', info.Type.Member(j).Datatype.Type, info.Type.Member(j).Name);
+    fprintf(fid,'      %s %s\n', info.Type.Member(j).Datatype.Type, info.Type.Member(j).Name);
 end
 
 return
@@ -170,7 +226,7 @@ function dump_enum_datatype_metadata(info,fid)
 
 fprintf(fid,'    %s enum ''%s''\n', info.Type.Type, info.Name);
 for j = 1:numel(info.Type.Member)
-    fprintf('      %s = %d\n', info.Type.Member(j).Name, info.Type.Member(j).Value);
+    fprintf(fid,'      %s = %d\n', info.Type.Member(j).Name, info.Type.Member(j).Value);
 end
 
 return
@@ -184,13 +240,13 @@ else
     num_dims = 0;
 end
 
-fprintf(fid,'\n  dimensions:\n');
+fprintf(fid,'dimensions:\n');
 for j = 1:num_dims
     if info.Dimension(j).Unlimited
-        fprintf(fid,'    %s = UNLIMITED ; (%i currently)\n', ...
+        fprintf(fid,'	%s = UNLIMITED ; (%i currently)\n', ...
                  deblank(info.Dimension(j).Name), info.Dimension(j).Length );
     else
-        fprintf(fid, '    %s = %i ;\n', info.Dimension(j).Name,info.Dimension(j).Length );
+        fprintf(fid, '	%s = %i ;\n', info.Dimension(j).Name,info.Dimension(j).Length );
     end
 end
 fprintf(fid,'\n');
@@ -218,14 +274,14 @@ end
 
 pfvd = nc_getpref('PRESERVE_FVD');
 
-fprintf (fid,'  variables:\n' );
+fprintf (fid,'variables:\n' );
 
 if pfvd == 0;
-   fprintf (fid,'    // Preference ''PRESERVE_FVD'':  false,\n' );
-   fprintf (fid,'    // dimensions consistent with ncBrowse, not with native MATLAB netcdf package.\n' );
+   fprintf (fid,'	// Preference ''PRESERVE_FVD'':  false,\n' );
+   fprintf (fid,'	// dimensions consistent with ncBrowse, not with native MATLAB netcdf package.\n' );
 else
-   fprintf (fid,'    // Preference ''PRESERVE_FVD'':  true,\n' );
-   fprintf (fid,'    // dimensions consistent with native MATLAB netcdf package, not with ncBrowse.\n' );
+   fprintf (fid,'	// Preference ''PRESERVE_FVD'':  true,\n' );
+   fprintf (fid,'	// dimensions consistent with native MATLAB netcdf package, not with ncBrowse.\n' );
 end
 
 
@@ -243,6 +299,61 @@ end
 
 fprintf (fid,'\n' );
 
+%--------------------------------------------------------------------------
+function not_found = dump_variables_data(Dataset,restricted_variable,fid,file_name,OPT)
+
+% Is it here?
+not_found = true;
+
+for j = 1:numel(Dataset)
+    if ~isempty(restricted_variable)
+        if strcmp(restricted_variable,Dataset(j).Name)
+            not_found = false;
+        end
+    end
+end
+if not_found && ~isempty(restricted_variable)
+    return
+end
+pfvd = nc_getpref('PRESERVE_FVD');
+fprintf(fid,'data:\n');
+for j = 1:numel(Dataset)
+    if ~isempty(restricted_variable)
+        if ~strcmp(restricted_variable,Dataset(j).Name)
+            continue
+        end
+    end
+    fprintf(fid,'\n');
+    array = nc_vargetr(file_name,Dataset(j).Name);
+    sz = size(array);
+    
+    if ischar(array)
+        fmt = '"%s"';
+    else
+        fmt = '%g';
+    end
+    
+    if prod(sz)==1
+        fprintf(fid,['%s = ',fmt,';\n'], Dataset(j).Name,array);
+    else
+        fprintf(fid,['%s =\n'], Dataset(j).Name);
+        array = permute(array,length(sz):-1:1);
+        n  = length(array(:));
+        dn = min(sz(end),OPT.hwidth);
+        for i=[1:dn:n-dn-1] % always skip last line as it needs special eol treatment
+           fprintf(fid,[' ',fmt,','], array(i:i+dn-1));
+           fprintf(fid,'\n');
+        end
+        fprintf(fid,[' ',fmt,','],  array(i+dn:n-1));
+        fprintf(fid,[' ',fmt,' ;'], array(n));
+        fprintf(fid,'\n');
+    end
+    
+% TO DO replace fillvalue with  "_"
+% TO DO replace nan with "1.#QNAN"
+    
+end
+fprintf (fid,'\n' );
 
 %--------------------------------------------------------------------------
 function dump_single_variable ( var_metadata , fid )
@@ -250,7 +361,7 @@ function dump_single_variable ( var_metadata , fid )
 if isempty(var_metadata.Datatype)
     var_metadata.Datatype = 'ENHANCED MODEL DATATYPE';
 end
-fprintf(fid,'    %s ', var_metadata.Datatype);
+fprintf(fid,'	%s ', var_metadata.Datatype);
 
 fprintf(fid,'%s', var_metadata.Name );
 
@@ -292,7 +403,7 @@ if isfield(var_metadata,'Deflate') && ~isempty(var_metadata.Deflate) ...
     fprintf(fid,', Deflate = %d', var_metadata.Deflate);
 end
 
-fprintf('\n');
+fprintf(fid,'\n');
 
 % Now do all attributes for each variable.
 num_atts = length(var_metadata.Attribute);
@@ -302,13 +413,12 @@ end
 
 return
 
-
 %--------------------------------------------------------------------------
 function dump_single_attribute ( attribute, varname , fid )
 
 if isnumeric(varname)
    fid = varname;
-   clear varname
+   varname = ''
 end
 
 switch ( attribute.Datatype )
@@ -350,9 +460,9 @@ switch ( attribute.Datatype )
         att_type = '';
     case 'string'
         att_type = '';
-        % If it's a single cellstr, then treat it like a char array.
-        if iscellstr(attribute.Value) && (numel(attribute.Value) == 1)
-            att_val = sprintf ('"%s" ', attribute.Value{1} );
+        % If it's a char value, then treat it like NC_CHAR.
+        if ischar(attribute.Value)
+            att_val = sprintf ('"%s" ', attribute.Value);
         elseif isempty(attribute.Value)
             att_val = '{}';
         else
@@ -377,11 +487,11 @@ switch ( attribute.Datatype )
 end
 
 if ~exist('varname','var')
-    fprintf(fid, '      :%s = %s%s\n', ...
-         attribute.Name, att_val, att_type);
+    fprintf(fid, '		%s:%s = %s%s;\n', ...
+         varname,attribute.Name, att_val, att_type);
 else
-    fprintf(fid, '      :%s = %s%s\n', ...
-         attribute.Name, att_val, att_type);
+    fprintf(fid, '		%s:%s = %s%s;\n', ...
+         varname,attribute.Name, att_val, att_type);
 end
 
 return
@@ -444,14 +554,14 @@ end
 
 if num_atts > 0
     if is_global
-        fprintf (fid, '  //global Attributes:\n' );
+        fprintf (fid, '//global attributes:\n' );
     else 
-        fprintf(fid,'  //group Attributes:\n');
+        fprintf(fid,'//group attributes:\n');
     end
 end
 
 for k = 1:num_atts
-   dump_single_attribute(group.Attribute(k),fid);
+   dump_single_attribute(group.Attribute(k),'',fid);
 end
 
 

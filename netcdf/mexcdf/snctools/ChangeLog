@@ -1,3 +1,90 @@
+* November 14 2013 John Evans <john.g.evans.ne@gmail.com> -r4053
+- Fixed NC_DUMP test bug for R2010a and prior, thanks to Wenyu Zhou.
+
+* November 14 2013 John Evans <john.g.evans.ne@gmail.com> -r4051
+- Fixed "same day" opendap bug in test_nc_info, thanks to Brian Blanton.
+
+* November 06 2013 John Evans <john.g.evans.ne@gmail.com> -r4049
+- When dumping char variables, use char print specifier.
+
+* October 31 2013 John Evans <john.g.evans.ne@gmail.com> -r4047
+- Fixed NC_DUMP for global attribute with newline (Go Rutgers!)
+
+* July 15 2013 John Evans <john.g.evans.ne@gmail.com> -r4040
+- Updated NC_DUMP to look more like Unidata's ncdump.
+
+* April 18 2013 John Evans <john.g.evans.ne@gmail.com> -r4038
+- Updated motherlode thredds URL used in testing.
+- Fixed THREDDS_INFO, relaxed it for service interrogation.
+- Updated THREDDS_DUMP example.
+
+* April 4 2013 John Evans <john.g.evans.ne@gmail.com> -r4034
+- Fixed issue with NC_ADDNEWRECS with trailing singleton dimension.
+
+* January 15 2013 John Evans <john.g.evans.ne@gmail.com> -r4033
+- Fixed a bad warning on NC_GETVARINFO when java IDs being used.
+- Fixed indexing issue for string data retrieved by java backend
+-     (thanks to Brendan DeTracey).
+- Fixed issue with grib files when intra-element ordering is to be preserved.
+- Updated README for OPeNDAP string issue.
+
+* November 27 2012 John Evans <john.g.evans.ne@gmail.com> -r4028
+- SQUEEZE call sites removed.  NC_VARGET will try to restore any leading
+- singleton dimensions that were removed because of the 
+- row-major-col-major order issue.  Forcing integer COUNT argument in 
+- private/snc_get_indexing, suggested by Gerben de Boer.
+
+* October 30 2012 John Evans <john.g.evans.ne@gmail.com> -r4024
+- Fixed indexing bug that crept into java backend.
+
+* October 10 2012 John Evans <john.g.evans.ne@gmail.com> -r4020
+- Added THREDDS_DUMP and THREDDS_INFO to top-level.
+- Fixed bugs in OPeNDAP string handling.
+
+* September 29 2012 John Evans <john.g.evans.ne@gmail.com> -r4015
+- Fixed bug in netcdf-java backend where a file on the matlab path 
+- wouldn't be read.
+- Added debug code to force use of netcdf-java for all reading.
+- Minor test modifications.
+
+* September 25 2012 John Evans <john.g.evans.ne@gmail.com> -r4009
+- Fixed minor testing bug.
+
+* September 22 2012 John Evans <john.g.evans.ne@gmail.com> -r4007
+- Not erroring out on zero-size variables.
+
+* September 14 2012 John Evans <john.g.evans.ne@gmail.com> -r4005
+- No longer testing SNC2MAT or HDF4 writes.
+- Crosslinked NC_ISVAR, NC_ISDIM, NC_ISATT help.
+
+* July 19 2012 John Evans <john.g.evans.ne@gmail.com> -r4000
+- Added USE_NETCDF_JAVA preference to allow forced use of netcdf-java 
+- instead of tmw for opendap reads.
+
+* May 28 2012 John Evans <john.g.evans.ne@gmail.com> -r3998
+- Fixed testing issue with GRIB setup.
+
+* April 19 2012 John Evans <john.g.evans.ne@gmail.com> -r3996
+- Added THREDDS_INFO, THREDDS_DUMP in examples folder
+- Added NC_ISDIM (thanks to Gerben de Boer)
+
+* March 23 2012 John Evans <john.g.evans.ne@gmail.com> -r3982
+- Fixed NC_DUMP's missing file ID on a few lines (thanks to Michael Morrin).
+
+* March 13 2012 John Evans <john.g.evans.ne@gmail.com> -r3981
+- Disabling enhanced testing below R2011b
+
+* March 01 2012 John Evans <john.g.evans.ne@gmail.com> -r3978
+- Updated for R2012 support.
+
+* February 28 2012 John Evans <john.g.evans.ne@gmail.com> -r3975
+- Private function snc_turnoff_log4j modified to run just once per
+- MATLAB session.
+
+* February 22 2012 John Evans <john.g.evans.ne@gmail.com> -r3974
+- Backwards incompatibility.  NC_INFO no longer returns single cellstr
+- values for attributes.  They are instead returned as char arrays.  
+
 * February 12 2012 John Evans <john.g.evans.ne@gmail.com> -r3966
 - Fixed snctools for change in netcdf-java authentication.
 - Updated README for clearer netcdf-java requirements.

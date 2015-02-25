@@ -45,7 +45,7 @@ if getpref('SNCTOOLS','TEST_REMOTE',false) && ...
     load('testdata/nc_dump.mat');
     % use data of today as the server has a clean up policy
     today = datestr(floor(now),'yyyymmdd');
-    url = ['http://motherlode.ucar.edu:8080/thredds/dodsC/satellite/CTP/SUPER-NATIONAL_1km/current/SUPER-NATIONAL_1km_CTP_',today,'_0000.gini'];
+    url = ['http://thredds.ucar.edu/thredds/dodsC/satellite/CTP/SUPER-NATIONAL_1km/current/SUPER-NATIONAL_1km_CTP_',today,'_0000.gini'];
 	fprintf('\t\tTesting remote DODS access %s...  ', url );
     
     cmd = sprintf('nc_dump(''%s'')',url);
@@ -296,6 +296,12 @@ cmd = sprintf('nc_dump(''%s'')',ncfile);
 
 act_data = evalc(cmd);
 exp_data = d.netcdf.classic3.(majority).(rel);
+
+% Remove backend dependency
+p = strfind(act_data,ncfile);
+act_data = act_data(p:end);
+p = strfind(exp_data,ncfile);
+exp_data = exp_data(p:end);
 
 if ~strcmp(act_data,exp_data)
     error('failed');
