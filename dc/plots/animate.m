@@ -49,7 +49,7 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
     warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
     %% figure out input
     narg = nargin;
-    
+
     if strcmp(get(gcf,'currentkey'),'escape')
         warning('Previous ESC detected. Opening new figure.');
         figure;
@@ -119,7 +119,9 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
     
     if isvector(xax), xax = repmat(xax ,[1 s(2)]); end
     if isvector(yax), yax = repmat(yax',[s(1) 1]); end
-    
+
+    commands = [commands  '; pcolor;center_colorbar;'];
+
     mm_instance = [];
     
     %% processing
@@ -145,7 +147,7 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
     
     %% parse options
     cmds = {'nocaxis','pcolor','imagesc','contour','pause', ...
-            'fancy_cmap','movieman','topresent','image'};
+            'fancy_cmap','movieman','topresent','image','center_colorbar'};
     flags = zeros(1,length(cmds));
     if ~isempty(commands),
         [flags, commands] = parse_commands(cmds,commands);
@@ -311,6 +313,9 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
                         if datamax ~= datamin,caxis([datamin datamax]); end
                     end
                 end
+            end
+            if flags(10)
+                center_colorbar;
             end
             % center colorbar
             if flags(7) || flags(8)
