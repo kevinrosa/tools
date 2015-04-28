@@ -1,6 +1,5 @@
 % I want to fit y = y_0 tanh(x/X)
-
-function [y0, X,y1] = tanh_fit(x, y, plot_flag, test)
+function [y0, X] = tanh_fit(x, y, plot_flag, test)
 
     if ~exist('test', 'var'), test = 0; end
     if ~exist('plot_flag', 'var'), plot_flag = 0; end
@@ -10,8 +9,8 @@ function [y0, X,y1] = tanh_fit(x, y, plot_flag, test)
         return;
     end
 
-    initGuess(1) = y(end);
-    initGuess(2) = mean(x(:));
+    initGuess(1) = max(y(:));
+    initGuess(2) = max(x(:))/2;
 
     opts = optimset('MaxFunEvals',1e7);
     [fit2,~,exitflag] = fminsearch(@(fit) fiterror(fit,x,y), ...
