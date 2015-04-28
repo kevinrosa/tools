@@ -54,6 +54,10 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         nt     = vinfo.Size(end);
         ndim = length(vinfo.Size);
 
+        if ndim == 2
+            nt = 1;
+        end
+
         % float variables
         if strcmpi(ftype, 'flt')
             vol = [];
@@ -71,6 +75,9 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
             if ii == 1
                 if ndim == 3
                     stride(4) = [];
+                end
+                if ndim == 2
+                    stride(3:4) = [];
                 end
                 if ndim ~= 1
                     if isempty(grd)
