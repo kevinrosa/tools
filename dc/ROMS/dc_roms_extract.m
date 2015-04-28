@@ -70,7 +70,9 @@ function [xax,yax,zax,vol] = dc_roms_extract(fname,varname,volume,tindex)
                     volume{i,3} = volume{i,2};
                     volume{i,2} = temp;
                 end
-                
+
+                xax = xax(:,:,volume{i,2}:volume{i,3});
+                yax = yax(:,:,volume{i,2}:volume{i,3});
                 zax = zax(:,:,volume{i,2}:volume{i,3});
                 
                 vol(3,1) = volume{i,2};
