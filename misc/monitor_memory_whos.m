@@ -2,7 +2,7 @@ function [ memory_in_use ] = monitor_memory_whos( )
 %MONITOR_MEMORY_WHOS uses the WHOS command and evaluates inside the BASE
 %workspace and sums up the bytes.  The output is displayed in MB.
 
-mem_elements = evalin('base','whos');
+mem_elements = evalin('caller','whos');
 if size(mem_elements,1) > 0
 
     for i = 1:size(mem_elements,1)
