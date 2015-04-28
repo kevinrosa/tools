@@ -4,6 +4,8 @@
 function [hline] = line45(hAxis)
     if ~exist('hAxis', 'var'); hAxis = gca; end
 
+    hold all;
+
     for ii=1:length(hAxis)
         axes(hAxis(ii));
         limx = xlim;
