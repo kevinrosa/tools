@@ -80,21 +80,19 @@ annotation('line', [x_frame_mapped(1),x_frame_mapped(2)], [bottom, bottom]);
 % draw vertical axis range frame
 annotation('line', [left, left], [y_frame_mapped(1),y_frame_mapped(2)]);
 
-
 %% Modify the existing axes to improve the visibility of the range frame
 
-% modify the normal axis
-box on;
-mask_axis = copyobj(gca, gcf); 
+%modify the normal axis
+mask_axis = copyobj(gca, gcf);
 set(mask_axis, ...
     'color', 'none', ...
-    'box', 'on', ...
-    'xcolor', [.75 .75 .75], ...      % maxe the axis lines white
-    'ycolor',[.75 .75 .75]', ...
+    'box', 'off', ...
+    'xcolor', [1 1 1]*1, ...      % maxe the axis lines white
+    'ycolor',[1 1 1]*1, ...
     'Xtick',[], ...         % dont print any ticks or numbers
     'Ytick',[], ...
     'xgrid', 'off', ...     % make sure there is no background grid
-    'ygrid','off');
+    'ygrid','off', ...
+    'xlabel',[], ...
+    'title',[]);
 grid on;
-
-
