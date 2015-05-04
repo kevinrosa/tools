@@ -33,24 +33,28 @@ function [handles, txthandles] = dcline(ax,x,label,color)
     
     handles = nan(size(x));
     txthandles = nan(size(x));
-    
+
+    txtfactor = 0.15;
+
     for i=1:length(x)
         if ax == 'x'
             handles(i) = plot([x(i) x(i)],yax,'--','LineWidth',2,'Color',color);
             if ~isempty(label)
-                tick = get(hAxis, 'YTick');
-                txthandles(i) = text(double(x(i)),double(tick(end-1)),label{i}, ...
-                    'Rotation',90,'VerticalAlignment','Bottom','FontSize',16,'Color',color);%,'FontWeight','Bold');
+                txthandles(i) = text(double(x(i)),double(txtfactor * diff(yax)), ...
+                                     ['  ' label{i}], ...
+                                     'Rotation',90,'VerticalAlignment', ...
+                                     'Bottom','FontSize',16,'Color',color);%,'FontWeight','Bold');
             end
         else
             handles(i) = plot(xax,[x(i) x(i)],'--','LineWidth',2,'Color',color);
             if ~isempty(label)
-                tick = get(hAxis, 'XTick');
-                txthandles(i) = text(double(tick(end-1)),double(x(i)),label{i}, ...
-                    'Rotation',0,'VerticalAlignment','Bottom','FontSize',16,'Color',color);%,'FontWeight','Bold');
+                txthandles(i) = text(double(txtfactor*diff(xax)), double(x(i)), ...
+                                     ['  ' label{i}], ...
+                                     'Rotation',0,'VerticalAlignment','Bottom', ...
+                                     'FontSize',14,'Color',color);%,'FontWeight','Bold');
             end
         end
     end
-    
+    drawnow;
     % add extra axis ticks
-    %set(hAxis,tickstr,sort(unique(str2num(sprintf('%.2e ', [tick x])))));
+    set(hAxis,tickstr,sort(unique(str2num(sprintf('%.2e ', [tick x])))));
