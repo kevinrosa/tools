@@ -10,7 +10,16 @@ function [] = correct_ticks(ax, format, ind)
     labelstr = [tickstr 'Label'];
 
     ticks = get(gca, tickstr);
-    ticks(ind) = [];
+    if ~ischar(ind) && ~iscell(ind) % provided with index
+        ticks(ind) = [];
+    else
+        if ~iscell(ind)
+            ind = cellstr(ind);
+        end
+        for kk=1:length(ind)
+            ticks(ticks == str2double(ind{kk})) = [];
+        end
+    end
     set(gca, tickstr, ticks);
 
     if ~isempty(format)
