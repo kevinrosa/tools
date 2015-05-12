@@ -14,11 +14,7 @@ function [] = beautify(fontSizes)
         fontSizes = [16 16 18];
     end
 
-    if strcmpi(computer,'GLNXA64')
-        font_name = 'Helvetica';
-    else
-        font_name = 'TeXGyrePagella'; %'AvantGarde'
-    end
+    font_name = 'Helvetica';
     font_name_axis = font_name;
 
     % Get required handles for current figure
@@ -40,7 +36,8 @@ function [] = beautify(fontSizes)
         'Color','white', ...
         'renderer', 'painters');
     set(legend, ...
-        'box', 'off');
+        'box', 'off', ...
+        'FontSize', fontSizes(2));
 
     set(hTitle, ...
         'FontSize'   , fontSizes(3) , ...
@@ -53,13 +50,10 @@ function [] = beautify(fontSizes)
         'FontSize'   , fontSizes(2)         );
 
     % rotate y-label and make space for it
-    hYLabel.Rotation = 0;
-    pos = hYLabel.Position;
-    ex = hYLabel.Extent;
-    hYLabel.Position(1) = pos(1) - ex(3)/2;
-
-    % y-label will now be outside figure space.
-    % need to reduce axis width
+    % hYLabel.Rotation = 0;
+    % pos = hYLabel.Position;
+    % ex = hYLabel.Extent;
+    % hYLabel.Position(1) = pos(1) - ex(3)/2;
 
     set(hAxis, ...
         'FontName'    , font_name_axis, ...
@@ -87,6 +81,15 @@ function [] = beautify(fontSizes)
                ~isempty(findall(gca,'type','image','visible','on'))
          set(hFig,'renderer','zbuffer');
          set(hAxis,'box','on');
+     end
+
+     % if colorbar, increase fontsize there too
+     if ~isempty(findall(gcf, 'type', 'colorbar'))
+         hcbar = findall(gcf,'type','colorbar');
+         for ii = 1:length(hcbar)
+             hcbar(ii).Label.Rotation = 0;
+             hcbar(ii).Label.FontSize = fontSizes(1)*0.9;
+         end
      end
 
 %      warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
