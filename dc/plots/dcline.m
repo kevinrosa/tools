@@ -2,6 +2,12 @@
 % called by linex and liney
 function [handles, txthandles] = dcline(ax,x,label,color)
 
+    if isempty(x)
+        handles = [];
+        txthandles = [];
+        return;
+    end
+
     hFig = evalin('caller','gcf');
     hAxis = evalin('caller','gca');
     
@@ -30,31 +36,34 @@ function [handles, txthandles] = dcline(ax,x,label,color)
     end
     
     tick = get(hAxis,tickstr);
-    
-    handles = nan(size(x));
-    txthandles = nan(size(x));
 
     txtfactor = 0.15;
 
     for i=1:length(x)
         if ax == 'x'
-            handles(i) = plot([x(i) x(i)],yax,'--','LineWidth',2,'Color',color);
+            handles{i} = plot([x(i) x(i)],yax,'--','LineWidth',2,'Color',color);
             if ~isempty(label)
-                txthandles(i) = text(double(x(i)),double(txtfactor * diff(yax)), ...
+                txthandles{i} = text(double(x(i)),double(txtfactor * diff(yax)), ...
                                      ['  ' label{i}], ...
                                      'Rotation',90,'VerticalAlignment', ...
-                                     'Bottom','FontSize',16,'Color',color);%,'FontWeight','Bold');
+                                     'Bottom','FontSize',16,'Color',color);
             end
         else
-            handles(i) = plot(xax,[x(i) x(i)],'--','LineWidth',2,'Color',color);
+            handles{i} = plot(xax,[x(i) x(i)],'--','LineWidth',2,'Color',color);
             if ~isempty(label)
-                txthandles(i) = text(double(txtfactor*diff(xax)), double(x(i)), ...
+                txthandles{i} = text(double(txtfactor*diff(xax)), double(x(i)), ...
                                      ['  ' label{i}], ...
                                      'Rotation',0,'VerticalAlignment','Bottom', ...
-                                     'FontSize',14,'Color',color);%,'FontWeight','Bold');
+                                     'FontSize',14,'Color',color);
             end
         end
     end
     drawnow;
+    if length(handles) == 1
+        handles = handles{1};
+        if ~isempty(label)
+            txthandles = txthandles{1};
+        end
+    end
     % add extra axis ticks
     set(hAxis,tickstr,sort(unique(str2num(sprintf('%.2e ', [tick x])))));
