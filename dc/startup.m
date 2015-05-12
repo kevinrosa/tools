@@ -12,7 +12,7 @@ feature('DefaultCharacterSet', 'UTF8')
 % good colormap
 set(0,'DefaultFigureColormap',flipud(cbrewer('div', 'RdYlBu', 32)));
 %set(0, 'DefaultFigureColormap', parula); close;
-fontName = 'DejaVu Mono';
+fontName = 'Helvetica';
 
 % figure properties
 %set(0,'DefaultTextInterpreter','latex')
