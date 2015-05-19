@@ -34,6 +34,7 @@ p.addParamValue('outputFile','mm_output.mpg');
 p.addParamValue('frameRate',25,@isnumeric);
 p.addParamValue('bitRate',25000000,@isnumeric);
 p.addParamValue('ffmpegArgs','');
+p.addParamValue('metadata',['hash=' githash]);
 
 p.parse(varargin{:});
 mm = struct(p.Results);
