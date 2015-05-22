@@ -185,7 +185,7 @@ end
 % MAIN 
 % -------------------------------------------------------------------------
 % Note: only CBH and S are necesary, but I use pax to avoid the use of the
-%       "hidden" 'Axes' COLORBAR's property. Why... ¿?
+%       "hidden" 'Axes' COLORBAR's property. Why... ï¿½?
 
 % Saves current position:
 fig = get(  0,'CurrentFigure');
@@ -294,9 +294,9 @@ for icb = 1:length(CBH)
    cbfreezedata.Location = cb_prop.Location;
   
    % Move ticks because IMAGE draws centered pixels:
-   XLim = cb_prop.XLim;
-   YLim = cb_prop.YLim;
-   if     isempty(cb_prop.XTick)
+   XLim = h.XLim;
+   YLim = h.YLim;
+   if     isempty(h.XTick)
     % Vertical:
     X = XLim(1) + diff(XLim)/2;
     Y = YLim    + diff(YLim)/(2*length(CData))*[+1 -1];
