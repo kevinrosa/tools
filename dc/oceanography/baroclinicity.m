@@ -1,7 +1,7 @@
 % compute baroclinicity - better defined as metric of vertical
 % uniformity of a profile.
 %     bc = (KE_total - KE_depthavg)/KE_tot 
-%          where KE = int_z 0.5 * profile.^2 dz
+%          where KE =  ∫_z 0.5 * profile.^2 dz
 
 function [bc] = baroclinicity(zvec, profile)
 
