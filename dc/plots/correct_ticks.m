@@ -11,6 +11,7 @@ function [] = correct_ticks(ax, format, ind)
 
     ticks = get(gca, tickstr);
     if ~ischar(ind) && ~iscell(ind) % provided with index
+        ind(ind > length(ticks)) = [];
         ticks(ind) = [];
     else
         if ~iscell(ind)

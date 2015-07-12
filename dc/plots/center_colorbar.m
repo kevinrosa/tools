@@ -1,6 +1,6 @@
-function [] = center_colorbar()
+function [hcbar] = center_colorbar()
 
-    colorbar;
+    hcbar = colorbar;
     clim = caxis;
     
     a = max(abs(clim));
