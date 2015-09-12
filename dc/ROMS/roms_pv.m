@@ -139,8 +139,11 @@ ncwriteatt(outname,'intPV','Description', ...
     'time series of volume averaged PV over entire domain.');
 fprintf('\n Created file : %s\n', outname);
 
-%% calculate pv
+xrv = avg1(avg1(avg1(grid1.xr,1),2),3);
+yrv = avg1(avg1(avg1(grid1.yr,1),2),3);
+zrv = avg1(avg1(avg1(grid1.zr,1),2),3);
 
+%% calculate pv
 misc = roms_load_misc(fname);
 ticstart = tic;
 for i=0:iend-1
@@ -183,6 +186,11 @@ for i=0:iend-1
         ncwrite(outname,xname,xpv);
         ncwrite(outname,yname,ypv);
         ncwrite(outname,zname,zpv);
+
+        ncwrite(outname,xrname,xrv);
+        ncwrite(outname,yrname,yrv);
+        ncwrite(outname,zrname,zrv);
+
         ncwrite(outname,'ocean_time',tpv);
 
         twstart = 1;
