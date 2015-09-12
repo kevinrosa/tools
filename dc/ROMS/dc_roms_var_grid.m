@@ -11,7 +11,9 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
         grd = fname;
         fname = grd.grd_file;
     else
-        grd = roms_get_grid(fname,fname,tindex,1);
+        if ~strcmpi(varname, 'pv') && ~strcmpi(varname, 'rv')
+            grd = roms_get_grid(fname,fname,tindex,1);
+        end
     end
     
     if strcmpi(varname,'pv')

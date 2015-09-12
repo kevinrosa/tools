@@ -28,7 +28,7 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
     end
 
     tic;
-    if strcmpi(varname,'vor')
+    if strcmpi(varname,'pv') || strcmpi(varname, 'rv')
         files{1}='ocean_vor.nc';
     else
         % get all history files
@@ -47,6 +47,9 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
             fname = [folder '/' char(files(ii))];
         else
             fname = char(folder);
+        end
+        if strcmpi(varname,'pv') || strcmpi(varname, 'rv')
+            grd = fname;
         end
 
         % variable information
