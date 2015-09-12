@@ -132,6 +132,9 @@ ncwriteatt(outname,xname,'units',ncreadatt(fname,'x_u','units'));
 ncwriteatt(outname,yname,'units',ncreadatt(fname,'y_u','units'));
 ncwriteatt(outname,zname,'units','m');
 ncwriteatt(outname,tname,'units','s');
+ncwriteatt(outname,xrname,'units',ncreadatt(fname,'x_u','units'));
+ncwriteatt(outname,yrname,'units',ncreadatt(fname,'y_u','units'));
+ncwriteatt(outname,zrname,'units','m');
 ncwriteatt(outname,'intPV','Description', ...
     'time series of volume averaged PV over entire domain.');
 fprintf('\n Created file : %s\n', outname);
