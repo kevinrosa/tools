@@ -6,7 +6,11 @@
 function [pv,xpv,ypv,zpv] = roms_pv(fname, tindices, volume, outname, ftype)
 
 totalstart = tic;
-if ~exist('ftype', 'var'), ftype = 'avg'; end
+% parse input
+if ~exist('ftype', 'var'), ftype = 'his'; end
+if ~exist('tindices','var'), tindices = []; end
+if ~exist('volume', 'var'), volume = {}; end
+
 if isdir(fname)
     dirname = fname;
     fnames = roms_find_file(dirname, ftype);
@@ -26,9 +30,6 @@ slab  = roms_slab(fname,0) + 36;
 warning off
 grid = roms_get_grid(fname,fname,1,1);
 warning on
-
-% parse input
-if ~exist('tindices','var'), tindices = []; end
 
 % parse volume
 for zz=1:size(volume,1)
@@ -72,6 +73,10 @@ else
     grid1.zr = permute(grid.z_r,[3 2 1]);
 
     grid1.zw = grid.z_w;
+
+    % set default vol
+    vol(1:3,1) = 1;
+    vol(3,2) = grid.N;
 end
 
 grid1.s_w = grid.s_w(vol(3,1):vol(3,2));
@@ -176,17 +181,24 @@ for i=0:iend-1
         ncwrite(outname,yname,ypv);
         ncwrite(outname,zname,zpv);
         ncwrite(outname,'ocean_time',tpv);
+
+        twstart = 1;
+    else
+        twstart = twend + 1;
     end
+
+    twend = twstart + size(pv,4) - 1;
 
     disp('Writing data...');
     ticstartwrt = tic;
-    ncwrite(outname,'pv',pv,read_start);
-    ncwrite(outname,'rv',rvor,read_start);
+    write_start = [read_start(1:end-1) twstart];
+    ncwrite(outname,'pv',pv,write_start);
+    ncwrite(outname,'rv',rvor,write_start)
     toc(ticstartwrt);
 
     pvdV = bsxfun(@times,pv,avg1(grid.dV(2:end-1,2:end-1,:),3));
 
-    intPV(tstart:tend) = squeeze(nansum(nansum(nansum(pvdV,1),2),3))./totvol;
+    intPV(twstart:twend) = squeeze(nansum(nansum(nansum(pvdV,1),2),3))./totvol;
 end
 ncwrite(outname,'intPV',intPV);
 toc(ticstart);
