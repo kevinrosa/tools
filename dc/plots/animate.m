@@ -120,7 +120,7 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
     if isvector(xax), xax = repmat(xax ,[1 s(2)]); end
     if isvector(yax), yax = repmat(yax',[s(1) 1]); end
 
-    commands = [commands  '; pcolor;center_colorbar;'];
+    commands = [commands  '; pcolor;'];
 
     mm_instance = [];
     
