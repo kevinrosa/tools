@@ -43,7 +43,6 @@
 function [h_plot] = mod_movie(fname, varname, tindices, volume, axis, index, commands, isDir)
 
 figure;
-insertAnnotation(['mod_movie(' fname ',' varname ')']);
 
 % fname = find_file(fname);
 % if isempty(fname)
@@ -62,6 +61,15 @@ if ~exist('isDir','var'), isDir = 0; end
 [flag_skiplevels,commands] = parse_commands({'skiplevels'},commands);
 
 % if folder, loop through all .nc files
+if isobject(fname)
+    obj = fname;
+    fname = obj.dir;
+    grd = obj.rgrid;
+else
+    grd = [];
+end
+insertAnnotation(['mod_movie(' fname ',' varname ')']);
+
 if isdir(fname)
     files = roms_find_file(fname,'his');
     isDir = 1;
@@ -122,10 +130,12 @@ else
     end
     % set up grid for first time instant
 
-    try
-        grd = roms_get_grid(fname,fname,0,1);
-    catch ME
-        grd = fname;
+    if isempty(grd)
+        try
+            grd = roms_get_grid(fname,fname,0,1);
+        catch ME
+            grd = fname;
+        end
     end
     [xax,yax,zax,vol] = dc_roms_extract(grd,varname,volume,1);
     [~,~,~,time,xunits,yunits] = dc_roms_var_grid(grd,varname);
