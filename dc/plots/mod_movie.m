@@ -42,8 +42,11 @@
 
 function [h_plot] = mod_movie(fname, varname, tindices, volume, axis, index, commands, isDir)
 
+figure;
+insertAnnotation(['mod_movie(' fname ',' varname ')']);
+
 % fname = find_file(fname);
-% if isempty(fname) 
+% if isempty(fname)
 %     error('No file found.');
 % else
 % 	fprintf('\n Using file: %s\n', fname)
