@@ -4,7 +4,7 @@
 %           varname - variable name
 %           tindices - time indices to animate [start (stride) end] OR [start count] OR [start] - single snapshot
 %           volume - cell array with location of selection edges
-%                       {'x' x1 x2; 'y' y1 y2; ...} 
+%                       {'x' x1 x2; 'y' y1 y2; ...}
 %                    x1,x2 etc. can be numbers (index) or string with
 %                    actual dimensional values
 %           axis - axis of slice ('x','y' or 'z')
@@ -21,8 +21,8 @@
 % Bugfixes - title index when timesteps(1) ~= 1,                22 Feb 2012
 %          - change depth to -ve by default and warn user
 % Made the animate call generic - woot! & bugfixes              21 Feb 2012
-%   - Imposed same colorbar even when multiple strides are used   
-%   - Fixed bug with Esc quitting when multiple strides are used  
+%   - Imposed same colorbar even when multiple strides are used
+%   - Fixed bug with Esc quitting when multiple strides are used
 %   - Now uses km for x,y axes if applicable
 %   - Passes stride number (i) and dt to animate.m
 % Extended tindices options and fixed major bug in              14 Feb 2012
@@ -67,13 +67,13 @@ if isdir(fname)
     isDir = 1;
     for ii=1:size(files,1)
         h_plot = mod_movie([fname '/' files{ii}],varname,tindices,volume,axis,index,commands,isDir);
-        if strcmp(get(gcf,'currentkey'),'escape'), return; end 
+        if strcmp(get(gcf,'currentkey'),'escape'), return; end
         if ii == 1 % allow uninterrupted playback
             % remove pause if it exists
             [~,commands] = parse_commands({'pause'},commands);
             % preserve contour levels
             if ~flag_skiplevels
-                try 
+                try
                     levels = get(h_plot.h_plot,'LevelList');
                     % reseting level list removes flat shading
                     newc = ['set(handles.h_plot, ''LevelList'',['  ...
@@ -95,7 +95,7 @@ end
 labels.isDir = isDir;
 %% model specific setup
 gcm = 1;
-try 
+try
     ncreadatt(fname,'/','MITgcm_version');
 catch ME
     gcm = 0;
@@ -104,11 +104,11 @@ end
 if gcm
     % fix lowercase - uppercase problem
     if length(varname) == 1
-        varname = upper(varname); 
+        varname = upper(varname);
     else
         varname(1) = upper(varname(1));
     end
-    
+
     % Set up grid
     [xax,yax,zax,xunits,yunits] = gcm_var_grid(fname,varname);
     vol = [1 Inf; 1 Inf; 1 Inf;];
@@ -116,7 +116,7 @@ if gcm
 
 else
     if length(varname) == 1
-        varname = lower(varname); 
+        varname = lower(varname);
     else
         varname(1) = lower(varname(1));
     end
@@ -144,7 +144,7 @@ slab   = 100; % slab for ncread. read 'n' records in at a time -
 % set only possible axis and index for Eta / zeta / ubar / vbar
 if dim == 3
     axis = 'z';
-    stride = [1 1 dt]; 
+    stride = [1 1 dt];
     index  = 1;
     sliceax(index) = 0;
     plotx = xax;
@@ -156,7 +156,7 @@ if dim == 3
 else
     switch axis
         case 'x'
-            sliceax = xax(:,1); 
+            sliceax = xax(:,1);
             plotx = yax;
             ploty = zax;
             axind = 1;
@@ -179,7 +179,7 @@ else
             labels.xax = ['X (' xunits ')'];
             labels.yax = ['Y (' yunits ')'];
             commands = [commands '; image'];
-            
+
         case 's'
             sliceax = 1:size(zax,3);
             plotx = xax;
@@ -189,11 +189,11 @@ else
             labels.yax = ['Y (' yunits ')'];
             commands = [commands '; image'];
 
-%             if ischar(index) && str2double(index) > 0                
+%             if ischar(index) && str2double(index) > 0
 %                 warning('Changed input depth %s m to -%s m', index, index);
 %                 index = num2str(-1 * str2double(index));
 %             end
-            
+
         otherwise
             error('Invalid axis label.');
     end
@@ -219,7 +219,7 @@ else
     if strcmpi(index,'mid'), index = num2str((sliceax(1)+sliceax(end))/2); end
     if ischar(index), index = find_approx(sliceax,str2double(index),1); end
 end
-            
+
 % fix axes
 if dim == 3, index = 1; end
 switch axind
@@ -229,7 +229,7 @@ switch axind
 
     case 2
         plotx = squeeze(plotx(:,index,:,:));
-        ploty = squeeze(ploty(:,index,:,:));    
+        ploty = squeeze(ploty(:,index,:,:));
     case 3
         plotx = squeeze(plotx(:,:,1,:));
         ploty = squeeze(ploty(:,:,1,:));
@@ -246,15 +246,15 @@ try % shouldn't work only for salt / other stuff i create
     vartitle = [varname ' (' ncreadatt(fname,varname,'units') ') | '];
 catch ME
     vartitle = varname;
-end 
+end
 
 % overwrite current figure if loading multiple files from directory
 % if ~isDir, figure; end
 
 %if ~isempty(strfind(labels.yax,'degree')) || ~isempty(strfind(labels.xax,'degree'))
-%    labels.dar = 1; 
+%    labels.dar = 1;
 %else
-    labels.dar = 0; 
+    labels.dar = 0;
 %end
 
 % fix title string
@@ -291,11 +291,11 @@ for i=0:iend-1
     end
 
     if axis ~= 'z' || dim == 3
-        dv = double(squeeze(ncread(fname,varname,read_start,read_count,stride)));  
+        dv = double(squeeze(ncread(fname,varname,read_start,read_count,stride)));
     else
         % first check if there's topo
         if flags.notopo
-            dv = double(squeeze(ncread(fname,varname,read_start,read_count,stride))); 
+            dv = double(squeeze(ncread(fname,varname,read_start,read_count,stride)));
         else % we need to interpolate
             grids.xax = xax;
             grids.yax = yax;
@@ -336,7 +336,7 @@ for i=0:iend-1
         end
     end
 
-    s = size(dv);            
+    s = size(dv);
     if s(1) == 1 || s(2) == 1
         close(gcf);
         error('2D simulation?');
