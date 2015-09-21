@@ -49,6 +49,8 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
     N = size(grd.z_r,1);
     end
 
+    tax = ncread(fname,'ocean_time');
+
     switch pos
         case 'u'
           if ~isempty(grd.lon_u)
@@ -59,7 +61,6 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
             yax = repmat(grd.x_u',[1 1 N]);
           end
           zax = permute(grd.z_u,[3 2 1]);
-          tax = ncread(fname,'ocean_time');
 
           try
               xunits = ncreadatt(fname,'lon_u','units');
@@ -78,7 +79,6 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
                 yax = repmat(grd.y_v',[1 1 N]);
             end
             zax = permute(grd.z_v,[3 2 1]);
-            tax = ncread(fname,'ocean_time');
 
             try
                 xunits = ncreadatt(fname,'lon_v','units');
@@ -97,7 +97,6 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
                 yax = repmat(grd.y_rho',[1 1 N+1]);
             end
             zax = permute(grd.z_w,[3 2 1]);
-            tax = ncread(fname,'ocean_time');
 
             try
                 xunits = ncreadatt(fname,'lon_rho','units');
@@ -108,9 +107,6 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
             end
 
         case 'r'
-
-            tax = ncread(fname,'ocean_time');
-
             if strcmp(varname, 'zeta');
                 if ~isempty(grd.lon_rho)
                     xax = grd.lon_rho';
