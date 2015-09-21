@@ -42,6 +42,8 @@
 
 function [h_plot] = mod_movie(fname, varname, tindices, volume, axis, index, commands, isDir)
 
+figure;
+
 % fname = find_file(fname);
 % if isempty(fname)
 %     error('No file found.');
