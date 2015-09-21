@@ -9,6 +9,11 @@ function [y0, X, y1] = exp_fit(x, y, plot_flag, test)
         return;
     end
 
+    x = double(x); y = double(y);
+    x = x(~isnan(y)); y = y(~isnan(y));
+
+    if size(y) ~= size(x), y = y'; end
+
     initGuess(1) = y(1);
     initGuess(2) = mean(x(:));
     initGuess(3) = y(1);
@@ -18,7 +23,7 @@ function [y0, X, y1] = exp_fit(x, y, plot_flag, test)
 
     y0 = fit2(1);
     X = fit2(2);
-    y1 = fit2(3)
+    y1 = fit2(3);
 
     if plot_flag
         figure;
