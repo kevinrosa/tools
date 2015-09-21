@@ -91,6 +91,7 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
                         end
                     end
                     [xax,yax,zax,vol] = dc_roms_extract(grd,varname,volume,1);
+                    xax = squeeze(xax); yax = squeeze(yax); zax = squeeze(zax);
                 else
                     % for 1D time series data, none of this is applicable
                     vol = [];
