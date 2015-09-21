@@ -112,8 +112,8 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
                     xax = grd.lon_rho';
                     yax = grd.lat_rho';
                 else
-                    xax = repmat(grd.x_rho',[1 1 N+1]);
-                    yax = repmat(grd.y_rho',[1 1 N+1]);
+                    xax = repmat(grd.x_rho',[1 1 N]);
+                    yax = repmat(grd.y_rho',[1 1 N]);
                 end
                 zax = [];
             else
@@ -121,8 +121,8 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
                     xax = repmat(grd.lon_rho',[1 1 N]);
                     yax = repmat(grd.lat_rho',[1 1 N]);
                 else
-                    xax = repmat(grd.x_rho',[1 1 N+1]);
-                    yax = repmat(grd.y_rho',[1 1 N+1]);
+                    xax = repmat(grd.x_rho',[1 1 N]);
+                    yax = repmat(grd.y_rho',[1 1 N]);
                 end
                 zax = permute(grd.z_r,[3 2 1]);
             end
