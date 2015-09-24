@@ -8,8 +8,11 @@ function [] = linkfig(hfigs, axstr)
     % do colorbars too.
     if findstr(axstr, 'c')
         axstr(axstr == 'c') = [];
-        clim = [min(min(ax.CLim)) ...
-                max(max(ax.CLim))];
+        clim = ax(1).CLim;
+        for ii=1:length(ax)
+            clim(1) = max([clim(1) ax(ii).CLim(1)]);
+            clim(2) = min([clim(2) ax(ii).CLim(2)]);
+        end
         for ii=1:length(ax)
             ax(ii).CLim = clim;
         end
