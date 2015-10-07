@@ -65,40 +65,16 @@ if isobject(fname)
     obj = fname;
     fname = obj.dir;
     grd = obj.rgrid;
+    outfile = obj.out_file;
 else
     grd = [];
 end
-insertAnnotation(['mod_movie(' fname ',' varname ')']);
-
 if isdir(fname)
-    files = roms_find_file(fname,'his');
-    isDir = 1;
-    for ii=1:size(files,1)
-        h_plot = mod_movie([fname '/' files{ii}],varname,tindices,volume,axis,index,commands,isDir);
-        if strcmp(get(gcf,'currentkey'),'escape'), return; end
-        if ii == 1 % allow uninterrupted playback
-            % remove pause if it exists
-            [~,commands] = parse_commands({'pause'},commands);
-            % preserve contour levels
-            if ~flag_skiplevels
-                try
-                    levels = get(h_plot.h_plot,'LevelList');
-                    % reseting level list removes flat shading
-                    newc = ['set(handles.h_plot, ''LevelList'',['  ...
-                                num2str(levels) ']); shading flat;'];
-                catch ME % not a contour plot
-                    newc = '';
-                end
-            else
-                newc = '';
-            end
-        end
-        % preserve colorbar
-        cax = caxis;
-        commands = [commands '; caxis([' num2str(cax(1)) ' ' num2str(cax(2)) ']);' newc];
-    end
-    return;
+    files = dir([fname '/*his*.nc*']);
+    outfile = [fname '/' files(1).name];
 end
+
+insertAnnotation(['mod_movie(' fname ',' varname ')']);
 
 labels.isDir = isDir;
 %% model specific setup
@@ -132,19 +108,19 @@ else
 
     if isempty(grd)
         try
-            grd = roms_get_grid(fname,fname,0,1);
+            grd = roms_get_grid(outfile,outfile,0,1);
         catch ME
             grd = fname;
         end
     end
-    [xax,yax,zax,vol] = dc_roms_extract(grd,varname,volume,1);
-    [~,~,~,time,xunits,yunits] = dc_roms_var_grid(grd,varname);
-    time = time./3600/24;
+    [xax,yax,zax,~] = dc_roms_extract(grd,varname,volume,1);
+    [~,~,~,~,xunits,yunits] = dc_roms_var_grid(grd,varname);
+    time = dc_roms_read_data(fname, 'ocean_time')/86400;
 end
 
 %% fix input and get needed info
 
-vinfo  = ncinfo(fname,varname);
+vinfo  = ncinfo(outfile,varname);
 dim    = length(vinfo.Size);
 slab   = 100; % slab for ncread. read 'n' records in at a time -
               % faster response + save some memory?
@@ -253,7 +229,7 @@ labels.tunits = 'days';
 labels.dt = dt;
 labels.t0 = tindices(1)-1;
 try % shouldn't work only for salt / other stuff i create
-    vartitle = [varname ' (' ncreadatt(fname,varname,'units') ') | '];
+    vartitle = [varname ' (' ncreadatt(outfile,varname,'units') ') | '];
 catch ME
     vartitle = varname;
 end
@@ -265,11 +241,12 @@ end
 % overwrite current figure if loading multiple files from directory
 % if ~isDir, figure; end
 
-%if ~isempty(strfind(labels.yax,'degree')) || ~isempty(strfind(labels.xax,'degree'))
-%    labels.dar = 1;
-%else
+if ~isempty(strfind(labels.yax,'degree')) ...
+        || ~isempty(strfind(labels.xax,'degree'))
+    labels.dar = 1;
+else
     labels.dar = 0;
-%end
+end
 
 % fix title string
 if axis == 'x' || axis == 'y'
@@ -286,92 +263,77 @@ else if axis == 'z'
 end
 labels.mm_instance = [];
 
-for i=0:iend-1
-    % if reading data in multiple strides, an escape in the first stride should
-    % not result in the next stride getting read / animated.
-    if i>0 && strcmp(get(gcf,'currentkey'),'escape')
-        return;
+% add axis info to volume to pass to dc_roms_read_data
+if axis == 's', axis = 'z'; end
+volume{size(volume,1)+1,1} = axis;
+volume{size(volume,1),2} = index;
+volume{size(volume,1),3} = index;
+
+labels.time = time(tindices(1):dt:tindices(2));
+labels.stride = i;
+
+% read data
+if (axis == 'z' && (~ischar(index) || flags.notopo)) || dim == 3
+    dv = dc_roms_read_data(fname, varname, tindices, volume, [], grd);
+else
+    % we need to interpolate
+    error('upgrade mod_movie interpolation');
+    grids.xax = xax;
+    grids.yax = yax;
+    grids.zax = zax;
+
+    warning off
+    read_start(3) = 1;
+    read_count(3) = Inf;
+    for mmm = 1:read_count(4)
+        disp(['reading & interpolating timestep ' ...
+              num2str(mmm) '/' num2str(read_count(4))]);
+        data = squeeze(double(ncread(fname,varname, ...
+                                     [read_start(1:3) read_start(4)+mmm-1], ...
+                                     [read_count(1:3) 1],stride)));
+
+        dv(:,:,mmm) = dc_roms_zslice_var(data,index,grids);
     end
-
-    [read_start,read_count] = roms_ncread_params(dim,i,iend,slab,tindices,dt,vol);
-
-    labels.time = time(read_start(end):dt:(read_start(end)+(read_count(end))*dt -1)); % read_start(end)-1
-    labels.stride = i;
-
-    % read data
-    if dim ~= 3
-        read_start(axind) = index;
-        read_count(axind) = 1;
-    end
-
-    if axis ~= 'z' || dim == 3
-        dv = double(squeeze(ncread(fname,varname,read_start,read_count,stride)));
-    else
-        % first check if there's topo
-        if flags.notopo
-            dv = double(squeeze(ncread(fname,varname,read_start,read_count,stride)));
-        else % we need to interpolate
-            grids.xax = xax;
-            grids.yax = yax;
-            grids.zax = zax;
-
-            warning off
-            read_start(3) = 1;
-            read_count(3) = Inf;
-            for mmm = 1:read_count(4)
-                disp(['reading & interpolating timestep ' num2str(mmm) '/' num2str(read_count(4))]);
-                data = squeeze(double(ncread(fname,varname, ...
-                                [read_start(1:3) read_start(4)+mmm-1], ...
-                                [read_count(1:3) 1],stride)));
-
-                dv(:,:,mmm) = dc_roms_zslice_var(data,index,grids);
-            end
-            clear data
-            warning on
-            % pause since this takes a long time and I might go do something
-            % else
-            commands = [commands; 'pause'];
-            [dv(:,:,mmm),~,~] = roms_zslice_var(permute(data,[3 2 1]),NaN,index,grd);
-            dv = permute(dv,[2 1 3]);
-        end
-    end
+    clear data
     warning on
-
-    % take care of walls for mitgcm - NEEDS TO BE CHECKED
-    if gcm
-        s = size(dv);
-        s(3) = size(dv,3); % correct for single timestep snapshots - in that case s is a 2 element row
-        if repnan(dv(1,:,:),0)   == zeros([1 s(2) s(3)]), dv(1,:,:) = NaN; end;
-        if repnan(dv(end,:,:),0) == zeros([1 s(2) s(3)]), dv(end,:,:) = NaN; end;
-
-        if axind == 3
-            if repnan(dv(:,1,:),0)   == zeros([s(1) 1 s(3)]), dv(:,1,:)   = NaN; end;
-            if repnan(dv(:,end,:),0) == zeros([s(1) 1 s(3)]), dv(:,end,:) = NaN; end;
-        end
-    end
-
-    s = size(dv);
-    if s(1) == 1 || s(2) == 1
-        close(gcf);
-        error('2D simulation?');
-    end
-
-    if max(plotx(:)) > 1000
-        plotx = plotx/1000;
-        labels.xax = [labels.xax ' x 10^3'];
-    end
-    if max(ploty(:)) > 1000
-        ploty = ploty/1000;
-        labels.yax = [labels.yax ' x 10^3'];
-    end
-    % send to animate
-    %torepeat = 1;
-    %while torepeat == 1,
-        [labels.mm_instance,h_plot] = animate(plotx,ploty,dv,labels,commands,3);
-    %    torepeat = input('Repeat? (1/0): ');
-    %end
+    % pause since this takes a long time and I might go do something else
+    commands = [commands; 'pause'];
+    [dv(:,:,mmm),~,~] = roms_zslice_var(permute(data,[3 2 1]),NaN,index,grd);
+    dv = permute(dv,[2 1 3]);
 end
+
+% take care of walls for mitgcm - NEEDS TO BE CHECKED
+if gcm
+    s = size(dv);
+    s(3) = size(dv,3); % correct for single timestep snapshots - in that case s is a 2 element row
+    if repnan(dv(1,:,:),0)   == zeros([1 s(2) s(3)]), dv(1,:,:) = NaN; end;
+    if repnan(dv(end,:,:),0) == zeros([1 s(2) s(3)]), dv(end,:,:) = NaN; end;
+
+    if axind == 3
+        if repnan(dv(:,1,:),0)   == zeros([s(1) 1 s(3)]), dv(:,1,:)   = NaN; end;
+        if repnan(dv(:,end,:),0) == zeros([s(1) 1 s(3)]), dv(:,end,:) = NaN; end;
+    end
+end
+
+s = size(dv);
+if s(1) == 1 || s(2) == 1
+    close(gcf);
+    error('2D simulation?');
+end
+
+if max(plotx(:)) > 1000
+    plotx = plotx/1000;
+    labels.xax = [labels.xax ' x 10^3'];
+end
+if max(ploty(:)) > 1000
+    ploty = ploty/1000;
+    labels.yax = [labels.yax ' x 10^3'];
+end
+
+% send to animate
+[labels.mm_instance,h_plot] = animate(plotx,ploty,dv,labels,commands,3);
 
 % for movie
 if ~isempty(labels.mm_instance), mm_render(labels.mm_instance); end
+
 end
