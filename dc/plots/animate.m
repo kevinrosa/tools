@@ -27,6 +27,7 @@
 %                          > lab_cmap - LAB space colormap
 %                          > pcolor / contour / contourf - imagescnan is default
 %                          > movieman - make movie using Ryan's movieman code
+%                          > noclabel - don't label contours
 %                          > topresent - tweaks image to make it better for saving (bigger fonts, reduced axis tick marks etc.)
 %
 %           index - dimension to loop through (optional)
@@ -120,8 +121,6 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
     if isvector(xax), xax = repmat(xax ,[1 s(2)]); end
     if isvector(yax), yax = repmat(yax',[s(1) 1]); end
 
-    commands = [commands  '; pcolor;'];
-
     mm_instance = [];
 
     %% processing
@@ -147,7 +146,8 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
 
     %% parse options
     cmds = {'nocaxis','pcolor','imagesc','contour','pause', ...
-            'fancy_cmap','movieman','topresent','image','center_colorbar'};
+            'fancy_cmap','movieman','topresent','image','center_colorbar', ...
+            'noclabel'};
     flags = zeros(1,length(cmds));
     if ~isempty(commands),
         [flags, commands] = parse_commands(cmds,commands);
@@ -248,7 +248,9 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
                     clf;
                     [C,handles.h_plot] = contour(xax,yax,plotdata(:,:,i),linspace(datamin,datamax,25),'Color','k');
                     format short
-                    clabel(C,handles.h_plot,'FontSize',9);
+                    if ~flags(11)
+                        clabel(C,handles.h_plot,'FontSize',9);
+                    end
                 else
                     set(handles.h_plot,'ZData',plotdata(:,:,i));
                 end
@@ -277,7 +279,6 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
             % maximize window
             jframe = get(gcf,'JavaFrame');
             jframe.setMaximized(true);
-
 
             % fix display aspect ratio for lat,lon plots
             if labels.dar
