@@ -70,7 +70,11 @@ else
     grd = [];
 end
 if isdir(fname)
-    files = dir([fname '/*his*.nc*']);
+    if ~strcmpi(varname, 'pv') && ~strcmpi(varname, 'rv')
+        files = dir([fname '/*his*.nc*']);
+    else
+        files = dir([fname '/*vor*.nc*']);
+    end
     outfile = [fname '/' files(1).name];
 end
 
@@ -113,8 +117,13 @@ else
             grd = fname;
         end
     end
-    [xax,yax,zax,~] = dc_roms_extract(grd,varname,volume,1);
-    [~,~,~,~,xunits,yunits] = dc_roms_var_grid(grd,varname);
+    if ~strcmpi(varname, 'pv') && ~strcmpi(varname, 'rv')
+        [xax,yax,zax,~] = dc_roms_extract(grd,varname,volume,1);
+        [~,~,~,~,xunits,yunits] = dc_roms_var_grid(grd,varname);
+    else
+        [xax,yax,zax,~] = dc_roms_extract(outfile,varname,volume,1);
+        [~,~,~,~,xunits,yunits] = dc_roms_var_grid(outfile,varname);
+    end
     time = dc_roms_read_data(fname, 'ocean_time')/86400;
 end
 
