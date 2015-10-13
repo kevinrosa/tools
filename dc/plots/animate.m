@@ -101,13 +101,13 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
         labels.stride = 0;
         labels.dt = 1;
         labels.dar = 0;
-        labels.isDir = 0;
     end
 
     if ~isfield(labels,'tmax'), labels.tmax = labels.time(end); end
     if ~isfield(labels,'dt'), labels.dt = 1; end
     if ~isfield(labels,'stride'), labels.stride = 0; end
     if ~isfield(labels,'t0'), labels.t0 = 0; end
+    if ~isfield(labels, 'hax'), figure; hax = gca; end
 
     if ~exist('commands','var'), commands = '';     end
 
@@ -126,7 +126,7 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
     %% processing
 
     if stop == 1,
-        if ~labels.isDir, warning('Only one time step.'); end
+        warning('Only one time step.');
         plotdata = double(squeeze(data)); % shiftdim screws up single snapshots
     else
         plotdata = double(squeeze(shiftdim(data,index)));
@@ -160,7 +160,7 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
 
     % make fonts bigger for presentation / movie plots
     if flags(8), fontSize = 20; else fontSize = 12; end
-    set(gca,'FontSize',fontSize);
+    set(labels.hax,'FontSize',fontSize);
 
     if flags(6) % Build colormap
         radius = 50;
@@ -233,10 +233,10 @@ function [mm_instance,handles] = animate(xax,yax,data,labels,commands,index)
                 if firstplot
                     try
                         handles.h_plot = imagescnan(xax,yax,plotdata(:,:,i));
-                        set(gca,'yDir','normal');
+                        set(hax,'yDir','normal');
                     catch ME
                         handles.h_plot = imagesc(xax,yax,plotdata(:,:,i));
-                        set(gca,'yDir','normal');
+                        set(hax,'yDir','normal');
                     end
                 else
                     set(handles.h_plot,'CData',plotdata(:,:,i));

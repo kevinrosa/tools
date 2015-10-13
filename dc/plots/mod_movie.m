@@ -40,9 +40,12 @@
 % Added labels structure
 % Original roms_movie version
 
-function [h_plot] = mod_movie(fname, varname, tindices, volume, axis, index, commands, isDir)
+function [h_plot] = mod_movie(fname, varname, tindices, volume, axis, index, commands, hax)
 
-figure;
+if ~exist('hax', 'var')
+    figure;
+    hax = gca;
+end
 
 % fname = find_file(fname);
 % if isempty(fname)
@@ -194,6 +197,7 @@ else
     end
 end
 
+labels.hax = hax;
 % check if there is topography
 if isempty (zax)
     flags.notopo = 1;
@@ -246,9 +250,6 @@ end
 if exist('obj', 'var')
     vartitle = [obj.name ' | ' vartitle];
 end
-
-% overwrite current figure if loading multiple files from directory
-% if ~isDir, figure; end
 
 if ~isempty(strfind(labels.yax,'degree')) ...
         || ~isempty(strfind(labels.xax,'degree'))
