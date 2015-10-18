@@ -6,6 +6,7 @@ rehash toolboxcache
 % unicode support
 feature('DefaultCharacterSet', 'UTF8')
 
+warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
 
 %% Make good figures
 
