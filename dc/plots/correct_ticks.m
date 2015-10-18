@@ -26,6 +26,9 @@ function [] = correct_ticks(ax, format, ind)
     if ~isempty(format)
         for ii = 1:length(ticks)
             ticklabels{ii} = sprintf(format, ticks(ii));
+            if ticks(ii) == 0
+                ticklabels{ii} = '0';
+            end
         end
         set(gca, labelstr, ticklabels);
     end
