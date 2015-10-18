@@ -8,7 +8,7 @@
 
 function [] = beautify(fontSizes)
 
-    drawnow;
+%drawnow;
 
     if ~exist('fontSizes','var') || isempty(fontSizes)
         fontSizes = [16 16 18];
@@ -71,7 +71,7 @@ function [] = beautify(fontSizes)
         'YColor'      , [.3 .3 .3], ...
         'ZColor'      , [.3 .3 .3], ...
         'FontSize'    , fontSizes(1), ...
-        'LineWidth'   , 2        );
+        'LineWidth'   , 1        );
 
      % Line Width 2
      set(findobj('Type','line'),'LineWidth',2)
