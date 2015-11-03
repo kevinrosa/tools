@@ -11,7 +11,7 @@ function [] = beautify(fontSizes)
 %drawnow;
 
     if ~exist('fontSizes','var') || isempty(fontSizes)
-        fontSizes = [16 16 18];
+        fontSizes = [18 20 24];
     end
 
     font_name = 'Helvetica';
@@ -89,6 +89,7 @@ function [] = beautify(fontSizes)
          for ii = 1:length(hcbar)
              hcbar(ii).Label.Rotation = 0;
              hcbar(ii).Label.FontSize = fontSizes(1)*0.9;
+             hcbar(ii).TickDirection = 'out';
          end
      end
 
