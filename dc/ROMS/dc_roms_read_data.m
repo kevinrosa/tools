@@ -6,6 +6,7 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
 
     disp(['Reading ' varname]);
 
+    out = []; xax = []; yax = []; zax = [];
     % set flags
     k = 1;
     quitflag = 0;
@@ -27,7 +28,7 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         objflag = 1;
     end
 
-    tic;
+    ticstart = tic;
     if strcmpi(varname,'pv') || strcmpi(varname, 'rv')
         files{1}='ocean_vor.nc';
     else
@@ -182,4 +183,4 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         end
         if quitflag, break; end
     end
-    toc;
+    toc(ticstart);
