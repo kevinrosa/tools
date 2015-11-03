@@ -1,6 +1,9 @@
 function [] = linkfig(hfigs, axstr)
 
     if ~exist('axstr', 'var'), axstr = 'xy'; end
+    if ~exist('hfigs', 'var')
+        hfigs = findobj('Type', 'figure');
+    end
 
     limx = [];
     limy = [];
