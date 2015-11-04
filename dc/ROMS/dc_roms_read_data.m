@@ -141,11 +141,9 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         [start,count] = roms_ncread_params(ndim,0,1,slab,tnew,dt,vol);
 
         if strcmpi(dtype, 'single')
-            temp = squeeze(single(ncread(fname,varname,start,count, ...
-                                         stride)));
+            temp = single(ncread(fname,varname,start,count,stride));
         else
-            temp = squeeze(double(ncread(fname,varname,start,count, ...
-                                         stride)));
+            temp = double(ncread(fname,varname,start,count,stride));
         end
         if count(end) == 1 && ii == 1 && quitflag == 1
             % first file has the single timestep
@@ -154,11 +152,7 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         end
 
         % make sure appending timestep always works
-        try
-            dimsave = max(ndims(temp),ndims(out));
-        catch ME
-            dimsave = ndims(temp);
-        end
+        dimsave = length(start);
 
         if isvector(temp)
             out(k:k+length(temp)-1) = temp;
@@ -183,4 +177,5 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         end
         if quitflag, break; end
     end
+    out = squeeze(out);
     toc(ticstart);
