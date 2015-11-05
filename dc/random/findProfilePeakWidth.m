@@ -26,6 +26,7 @@ function [zwidth, idifflo, idiffhi] = findProfilePeakWidth(vec, zvec, debug, tes
 
     % peakwidth based on derivative drop to half it's max
     % value — look for first depth after maximum
+    if ivmax > length(dvec), ivmax = length(dvec); end
     [dvmax, idvmax] = max(abs(dvec(1:ivmax)));
     idifflo = find(abs(dvec(1:min(ivmax,idvmax))) - dvmax/2 > 0, 1, 'first');
 
