@@ -82,9 +82,9 @@ function [fname] = roms_find_file(dirin,type)
 
 % runs grep on input file
 function [str] = grep_in(fname,type)
-    [~,p] = grep([upper(type) 'NAME == '],fname);
+    [~,p] = grep('-s', [upper(type) 'NAME == '],fname);
     if isempty(p.match) % catch FPOSNAM
-        [~,p] = grep([upper(type) 'NAM = '],fname);
+        [~,p] = grep('-s', [upper(type) 'NAM = '],fname);
         % line in p.match must be processed to extract *.nc name
         str = sscanf(char(p.match),sprintf(' %sNAM = %%s', ...
                                            upper(type)));
