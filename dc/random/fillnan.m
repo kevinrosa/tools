@@ -2,11 +2,14 @@
 %       [out] = fillnan(in,val)
 
 function [out] = fillnan(in,val,recursive)
-% in = double(in);
-%mask = (in == val);
-    out = in;
+    if islogical(in)
+        % logicals cant have NaN
+        out = in;
+        return;
+    end
+
     out(in == val) = NaN;
-    
+
     if nargin == 2
         recursive = 0;
     end
