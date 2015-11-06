@@ -2,10 +2,10 @@
 %       [out] = fillnan(in,val)
 
 function [out] = fillnan(in,val,recursive)
-    in = double(in);
-    mask = in == val;
+% in = double(in);
+%mask = (in == val);
     out = in;
-    out(mask) = NaN;
+    out(in == val) = NaN;
     
     if nargin == 2
         recursive = 0;
