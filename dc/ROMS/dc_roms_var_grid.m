@@ -53,7 +53,7 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
 
     switch pos
         case 'u'
-          if ~isempty(grd.lon_u)
+          if isfield(grd, 'lon_u') & ~isempty(grd.lon_u)
             xax = repmat(grd.lon_u',[1 1 N]);
             yax = repmat(grd.lat_u',[1 1 N]);
           else
@@ -71,7 +71,7 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
           end
 
         case 'v'
-            if ~isempty(grd.lon_v)
+            if isfield(grd, 'lon_v') & ~isempty(grd.lon_v)
                 xax = repmat(grd.lon_v',[1 1 N]);
                 yax = repmat(grd.lat_v',[1 1 N]);
             else
@@ -89,7 +89,7 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
             end
 
         case 'w'
-            if ~isempty(grd.lon_rho)
+            if isfield(grd, 'lon_rho') & ~isempty(grd.lon_rho)
                 xax = repmat(grd.lon_rho',[1 1 N+1]);
                 yax = repmat(grd.lat_rho',[1 1 N+1]);
             else
@@ -108,7 +108,7 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
 
         case 'r'
             if strcmp(varname, 'zeta');
-                if ~isempty(grd.lon_rho)
+                if isfield(grd, 'lon_rho') & ~isempty(grd.lon_rho)
                     xax = grd.lon_rho';
                     yax = grd.lat_rho';
                 else
@@ -117,7 +117,7 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
                 end
                 zax = [];
             else
-                if ~isempty(grd.lon_rho)
+                if isfield(grd, 'lon_rho') & ~isempty(grd.lon_rho)
                     xax = repmat(grd.lon_rho',[1 1 N]);
                     yax = repmat(grd.lat_rho',[1 1 N]);
                 else
