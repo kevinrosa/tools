@@ -58,7 +58,7 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
             yax = repmat(grd.lat_u',[1 1 N]);
           else
             xax = repmat(grd.x_u',[1 1 N]);
-            yax = repmat(grd.x_u',[1 1 N]);
+            yax = repmat(grd.y_u',[1 1 N]);
           end
           zax = permute(grd.z_u,[3 2 1]);
 
@@ -107,25 +107,14 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
             end
 
         case 'r'
-            if strcmp(varname, 'zeta');
-                if isfield(grd, 'lon_rho') & ~isempty(grd.lon_rho)
-                    xax = grd.lon_rho';
-                    yax = grd.lat_rho';
-                else
-                    xax = repmat(grd.x_rho',[1 1 N]);
-                    yax = repmat(grd.y_rho',[1 1 N]);
-                end
-                zax = [];
+            if isfield(grd, 'lon_rho') & ~isempty(grd.lon_rho)
+                xax = repmat(grd.lon_rho',[1 1 N]);
+                yax = repmat(grd.lat_rho',[1 1 N]);
             else
-                if isfield(grd, 'lon_rho') & ~isempty(grd.lon_rho)
-                    xax = repmat(grd.lon_rho',[1 1 N]);
-                    yax = repmat(grd.lat_rho',[1 1 N]);
-                else
-                    xax = repmat(grd.x_rho',[1 1 N]);
-                    yax = repmat(grd.y_rho',[1 1 N]);
-                end
-                zax = permute(grd.z_r,[3 2 1]);
+                xax = repmat(grd.x_rho',[1 1 N]);
+                yax = repmat(grd.y_rho',[1 1 N]);
             end
+            zax = permute(grd.z_r,[3 2 1]);
 
             try
                 xunits = ncreadatt(fname,'lon_rho','units');
@@ -163,5 +152,11 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
 
     xunits = strrep(xunits,'_',' ');
     yunits = strrep(yunits,'_',' ');
+
+    if (pos == 'u' | pos == 'v' | pos == 'r') ...
+        & isempty(strfind(varcoords, ['s_' pos]))
+        xax = xax(:,:,1);
+        yax = yax(:,:,1);
+    end
 
     warning on;
