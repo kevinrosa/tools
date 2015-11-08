@@ -156,6 +156,9 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
 
         if isvector(temp)
             out(k:k+length(temp)-1) = temp;
+            if k == 1 & ~isequal(size(out), size(temp))
+                out = out';
+            end
             k = k+length(temp);
         else
             % call ndims instead of using ndim because i could be
