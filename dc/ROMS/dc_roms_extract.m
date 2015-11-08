@@ -12,7 +12,7 @@ function [xax,yax,zax,vol] = dc_roms_extract(fname,varname,volume,tindex)
     if ~exist('tindex','var'), tindex = 0; end
 
     [xax,yax,zax,~,~] = dc_roms_var_grid(fname,varname,tindex);
-    
+
     % Assuming cartesian grid
     xaxis = xax(:,1,end,end);
     yaxis = yax(1,:,end,end)';
@@ -71,8 +71,11 @@ function [xax,yax,zax,vol] = dc_roms_extract(fname,varname,volume,tindex)
                     volume{i,2} = temp;
                 end
 
-                xax = xax(:,:,volume{i,2}:volume{i,3});
-                yax = yax(:,:,volume{i,2}:volume{i,3});
+                try
+                    % if no z-dimension, then this fails.
+                    xax = xax(:,:,volume{i,2}:volume{i,3});
+                    yax = yax(:,:,volume{i,2}:volume{i,3});
+                end
                 zax = zax(:,:,volume{i,2}:volume{i,3});
                 
                 vol(3,1) = volume{i,2};
