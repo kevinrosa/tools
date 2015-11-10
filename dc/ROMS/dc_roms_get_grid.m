@@ -318,6 +318,9 @@ if nargin > 1
 
   grd.Hz = diff(z_w,1,3);
 
+  grd.dV = bsxfun(@times, (1./grd.pm .* 1./grd.pn)', ...
+            diff(permute(grd.z_w,[3 2 1]),1,3));
+
   if nox
       grd.x_rho = grd.lon_rho; grd.y_rho = grd.lat_rho;
       grd.x_u = grd.lon_u; grd.y_u = grd.lat_u;
