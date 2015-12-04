@@ -6,6 +6,7 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
 
     disp(['Reading ' varname]);
 
+    out = []; xax = []; yax = []; zax = [];
     % set flags
     k = 1;
     quitflag = 0;
@@ -27,7 +28,7 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         objflag = 1;
     end
 
-    tic;
+    ticstart = tic;
     if strcmpi(varname,'pv') || strcmpi(varname, 'rv')
         files{1}='ocean_vor.nc';
     else
@@ -140,27 +141,24 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         [start,count] = roms_ncread_params(ndim,0,1,slab,tnew,dt,vol);
 
         if strcmpi(dtype, 'single')
-            temp = squeeze(single(ncread(fname,varname,start,count, ...
-                                         stride)));
+            temp = single(ncread(fname,varname,start,count,stride));
         else
-            temp = squeeze(double(ncread(fname,varname,start,count, ...
-                                         stride)));
+            temp = double(ncread(fname,varname,start,count,stride));
         end
         if count(end) == 1 && ii == 1 && quitflag == 1
             % first file has the single timestep
-            out = temp;
+            out = squeeze(temp);
             return;
         end
 
         % make sure appending timestep always works
-        try
-            dimsave = max(ndims(temp),ndims(out));
-        catch ME
-            dimsave = ndims(temp);
-        end
+        dimsave = length(start);
 
         if isvector(temp)
             out(k:k+length(temp)-1) = temp;
+            if k == 1 & ~isequal(size(out), size(temp))
+                out = out';
+            end
             k = k+length(temp);
         else
             % call ndims instead of using ndim because i could be
@@ -182,4 +180,5 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         end
         if quitflag, break; end
     end
-    toc;
+    out = squeeze(out);
+    toc(ticstart);

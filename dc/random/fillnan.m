@@ -1,12 +1,14 @@
 % Replaces val with NaN's in 'in'
-%       [out] = fillnan(in,val)
+%       [in] = fillnan(in,val)
 
-function [out] = fillnan(in,val,recursive)
-    in = double(in);
-    mask = in == val;
-    out = in;
-    out(mask) = NaN;
-    
+function [in] = fillnan(in,val,recursive)
+    if islogical(in)
+        % logicals cant have NaN
+        return;
+    end
+
+    in(in == val) = NaN;
+
     if nargin == 2
         recursive = 0;
     end
@@ -14,6 +16,6 @@ function [out] = fillnan(in,val,recursive)
     if val == Inf || val == -Inf
         if recursive == 1, return; end
         fprintf('\n Running fillnan recursively for +-Inf \n');
-        out = fillnan(out,-1*val,1);
+        in = fillnan(in,-1*val,1);
     end
         

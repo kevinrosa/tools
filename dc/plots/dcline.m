@@ -17,7 +17,7 @@ function [handles, txthandles] = dcline(ax,x,label,color)
     hold on;
     
     if ~exist('label','var'), label = [];num2str(x'); end
-    if ~exist('color','var') || isempty(color), color = [1 1 1]*0.7; end
+    if ~exist('color','var') || isempty(color), color = [1 1 1]*0.5; end
     
     if length(x) ~= size(label,1)
         label = repmat(label,[length(x) 1]);
@@ -46,7 +46,7 @@ function [handles, txthandles] = dcline(ax,x,label,color)
                 txthandles{i} = text(double(x(i)),double(txtfactor * diff(yax)), ...
                                      ['  ' label{i}], ...
                                      'Rotation',90,'VerticalAlignment', ...
-                                     'Bottom','FontSize',16,'Color',color);
+                                     'Bottom','FontSize',14,'Color',color);
             end
         else
             handles{i} = plot(xax,[x(i) x(i)],'--','LineWidth',2,'Color',color);

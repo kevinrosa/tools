@@ -1,8 +1,18 @@
 function [] = linkfig(hfigs, axstr)
 
+    if ~exist('axstr', 'var'), axstr = 'xy'; end
+    if ~exist('hfigs', 'var')
+        hfigs = findobj('Type', 'figure');
+    end
+
+    limx = [];
+    limy = [];
+
     for ii=1:length(hfigs)
         figure(hfigs(ii));
         ax(ii) = gca;
+        limx = [limx xlim];
+        limy = [limy ylim];
     end
 
     % do colorbars too.
@@ -18,5 +28,7 @@ function [] = linkfig(hfigs, axstr)
         end
     end
 
+    limx = sort(limx); limy = sort(limy);
+    xlim([limx(1) limx(end)]); ylim([limy(1) limy(end)]);
     linkaxes(ax, axstr);
 end
