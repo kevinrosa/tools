@@ -1,4 +1,5 @@
 % I want to fit y = y_0 exp(-((x-x0)/X)^2)
+% fit works better if x0 is near 0.
 function [y0, X, x0] = gauss_der_fit(x, y, plot_flag, test)
 
     if ~exist('test', 'var'), test = 0; end
