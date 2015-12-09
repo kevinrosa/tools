@@ -12,8 +12,8 @@ function [] = correct_ticks(ax, format, ind, hax)
     tickstr = [upper(ax) 'Tick'];
     labelstr = [tickstr 'Label'];
 
-    for ii = 1:length(hax)
-        ticks = get(hax(ii), tickstr);
+    for aa = 1:length(hax)
+        ticks = get(hax(aa), tickstr);
         if ~isempty(ind)
             if ~ischar(ind) && ~iscell(ind) % provided with index
                 ind(ind > length(ticks)) = [];
@@ -26,7 +26,7 @@ function [] = correct_ticks(ax, format, ind, hax)
                     ticks(ticks == str2double(ind{kk})) = [];
                 end
             end
-            set(hax(ii), tickstr, ticks);
+            set(hax(aa), tickstr, ticks);
         end
 
         if ~isempty(format)
@@ -36,7 +36,7 @@ function [] = correct_ticks(ax, format, ind, hax)
                     ticklabels{ii} = '0';
                 end
             end
-            set(hax(ii), labelstr, ticklabels);
+            set(hax(aa), labelstr, ticklabels);
         end
     end
 end
