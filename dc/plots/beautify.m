@@ -26,10 +26,10 @@ function [] = beautify(fontSizes)
     end
 
     % Get some more handles
-    hXLabel = get(hAxis,'XLabel');
-    hYLabel = get(hAxis,'YLabel');
-    hZLabel = get(hAxis,'ZLabel');
-    hTitle  = get(hAxis,'Title');
+    hXLabel = hAxis.XLabel;
+    hYLabel = hAxis.YLabel;
+    hZLabel = hAxis.ZLabel;
+    hTitle  = hAxis.Title;
 
     % Aaaand..  Presto!
     set(hFig, ...
