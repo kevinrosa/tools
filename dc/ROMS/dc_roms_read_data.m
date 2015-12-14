@@ -58,7 +58,7 @@ function [out,xax,yax,zax,grd] = dc_roms_read_data(folder,varname,tindices, ...
         nt     = vinfo.Size(end);
         ndim = length(vinfo.Size);
 
-        if ndim == 2
+        if ndim == 2 & ~strcmpi(ftype, 'flt')
             nt = 1;
         end
 
