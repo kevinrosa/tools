@@ -14,6 +14,8 @@ function [y0, X, x0] = gauss_fit(x, y, plot_flag, test)
         return;
     end
 
+    if size(y) ~= size(x), y = y'; end
+
     initGuess(1) = max(y);
     initGuess(2) = max(x(:));
     initGuess(3) = 0;
