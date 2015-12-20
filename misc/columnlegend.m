@@ -33,20 +33,25 @@ function [legend_h,object_h,plot_h,text_strings] = columnlegend(numcolumns, str,
 
 location = 'NorthEast';
 boxon = false;
+fontsize =  16;
 for i=1:length(varargin),
     switch lower(varargin{i})
         case 'location'
             location = varargin{i+1};
             i=i+2;
+        case 'fontsize'
+            fontsize = varargin{i+1};
+            i=i+2;
         case 'boxon'
             boxon = true;
         case 'boxoff'
-            boxon = false;
+          boxon = false;
     end
 end
 
 %create the legend
 [legend_h,object_h,plot_h,text_strings] = legend(str);
+legend_h.FontSize = fontsize;
 
 %some variables
 numlines = length(str);
@@ -130,3 +135,5 @@ if boxon,
     pos(1) = pos(1)+pos(1)*0.05;
     annotation('rectangle',pos)
 end
+
+ColumnLegendFontSize(object_h, fontsize);
