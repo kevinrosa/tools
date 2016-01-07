@@ -8,6 +8,8 @@ function [handles, txthandles] = dcline(ax,x,label,color)
         return;
     end
 
+    if isempty(label), txthandles = []; end
+
     hFig = evalin('caller','gcf');
     hAxis = evalin('caller','gca');
     
@@ -41,7 +43,7 @@ function [handles, txthandles] = dcline(ax,x,label,color)
 
     for i=1:length(x)
         if ax == 'x'
-            handles{i} = plot([x(i) x(i)],yax,'--','LineWidth',2,'Color',color);
+            handles{i} = plot([x(i) x(i)],yax,'-','LineWidth',1,'Color',color);
             if ~isempty(label)
                 txthandles{i} = text(double(x(i)),double(txtfactor * diff(yax)), ...
                                      ['  ' label{i}], ...
@@ -49,7 +51,7 @@ function [handles, txthandles] = dcline(ax,x,label,color)
                                      'Bottom','FontSize',14,'Color',color);
             end
         else
-            handles{i} = plot(xax,[x(i) x(i)],'--','LineWidth',2,'Color',color);
+            handles{i} = plot(xax,[x(i) x(i)],'-','LineWidth',1,'Color',color);
             if ~isempty(label)
                 txthandles{i} = text(double(txtfactor*diff(xax)), double(x(i)), ...
                                      ['  ' label{i}], ...
@@ -57,6 +59,9 @@ function [handles, txthandles] = dcline(ax,x,label,color)
                                      'FontSize',14,'Color',color);
             end
         end
+
+        % tag so that I can find them later
+        handles{i}.Tag = 'dcline';
     end
     drawnow;
     if length(handles) == 1

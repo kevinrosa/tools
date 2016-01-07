@@ -26,10 +26,10 @@ function [] = beautify(fontSizes)
     end
 
     % Get some more handles
-    hXLabel = get(hAxis,'XLabel');
-    hYLabel = get(hAxis,'YLabel');
-    hZLabel = get(hAxis,'ZLabel');
-    hTitle  = get(hAxis,'Title');
+    hXLabel = hAxis.XLabel;
+    hYLabel = hAxis.YLabel;
+    hZLabel = hAxis.ZLabel;
+    hTitle  = hAxis.Title;
 
     % Aaaand..  Presto!
     set(hFig, ...
@@ -59,7 +59,7 @@ function [] = beautify(fontSizes)
         'FontName'    , font_name_axis, ...
         'Box'         , 'off'     , ...
         'TickDir'     , 'out'     , ...
-        'TickLength'  , [1 1] * .01, ... % IMPROVE THIS
+        'TickLength'  , [1 1] * .015, ... % IMPROVE THIS
         'FontWeight'  , 'normal', ...
         ...%'XMinorTick'  , 'on'      , ...
         ...%'YMinorTick'  , 'on'      , ...
@@ -72,6 +72,10 @@ function [] = beautify(fontSizes)
 
      % Line Width 2
      set(findobj('Type','line'),'LineWidth',2)
+     try
+         set(findobj('Tag', 'dcline'), 'LineWidth',1);
+     catch ME
+     end
 
      % find contours / images and then set box on + renderer = zbuffer
      if ~isempty(findall(gca,'type','contour','visible','on')) || ...
