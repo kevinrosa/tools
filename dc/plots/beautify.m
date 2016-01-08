@@ -59,7 +59,7 @@ function [] = beautify(fontSizes)
         'FontName'    , font_name_axis, ...
         'Box'         , 'off'     , ...
         'TickDir'     , 'out'     , ...
-        'TickLength'  , [1 1] * .015, ... % IMPROVE THIS
+        'TickLength'  , [1 1] * .0075, ... % IMPROVE THIS
         'FontWeight'  , 'normal', ...
         ...%'XMinorTick'  , 'on'      , ...
         ...%'YMinorTick'  , 'on'      , ...
@@ -79,8 +79,7 @@ function [] = beautify(fontSizes)
 
      % find contours / images and then set box on + renderer = zbuffer
      if ~isempty(findall(gca,'type','contour','visible','on')) || ...
-               ~isempty(findall(gca,'type','image','visible','on'))
-         set(hFig,'renderer','zbuffer');
+             ~isempty(findall(gca,'type','image','visible','on'))
          set(hAxis,'box','on');
      end
 
@@ -91,6 +90,9 @@ function [] = beautify(fontSizes)
              hcbar(ii).Label.Rotation = 0;
              hcbar(ii).Label.FontSize = fontSizes(1)*0.9;
              hcbar(ii).TickDirection = 'in';
+             hcbar(ii).TickLength = 0.02;
+             hcbar(ii).LineWidth = 1;
+             hcbar(ii).Color = [1 1 1]*0.25;
          end
      end
 
