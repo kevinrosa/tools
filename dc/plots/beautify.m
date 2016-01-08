@@ -90,7 +90,7 @@ function [] = beautify(fontSizes)
          for ii = 1:length(hcbar)
              hcbar(ii).Label.Rotation = 0;
              hcbar(ii).Label.FontSize = fontSizes(1)*0.9;
-             hcbar(ii).TickDirection = 'out';
+             hcbar(ii).TickDirection = 'in';
          end
      end
 
