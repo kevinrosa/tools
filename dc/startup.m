@@ -44,7 +44,7 @@ set(0,'DefaultAxesTickDir','out')
 set(0,'DefaultAxesXColor',[.3 .3 .3])
 set(0,'DefaultAxesYColor',[.3 .3 .3])
 set(0,'DefaultAxesZColor',[.3 .3 .3])
-set(0,'DefaultAxesLineWidth',2)
+set(0,'DefaultAxesLineWidth',1)
 set(0,'DefaultLineLineWidth',2);
 
 
