@@ -70,7 +70,7 @@ whichLabel=lower(whichLabel);
 ax=axes('Units','Normal','Position',supAxes,'Visible','off','tag','suplabel');
 if strcmp('t',whichLabel)
   set(get(ax,'Title'),'Visible','on')
-  title(text);
+  title(text, 'FontWeight', 'normal', 'FontSize', 20);
 elseif strcmp('x',whichLabel)
   set(get(ax,'XLabel'),'Visible','on')
   xlabel(text);

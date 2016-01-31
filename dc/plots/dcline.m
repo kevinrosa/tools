@@ -60,8 +60,8 @@ function [handles, txthandles] = dcline(ax,x,label,color)
             end
         end
 
-        % tag so that I can find them later
-        handles{i}.Tag = 'dcline';
+        handles{i}.Tag = 'dcline'; % tag so that I can find them later
+        handles{i}.HandleVisibility = 'off'; % prevent legend from seeing it
     end
     drawnow;
     if length(handles) == 1
