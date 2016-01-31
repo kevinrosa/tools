@@ -1,5 +1,7 @@
 % I want to fit y = y_0 exp(-((x-x0)/X)^2)
-function [y0, X, x0] = gauss_fit(x, y, plot_flag, test)
+function [y0, X, x0, exitflag] = gauss_fit(x, y, plot_flag, test)
+
+    x = double(x); y = double(y);
 
     if ~exist('test', 'var'), test = 0; end
     if ~exist('plot_flag', 'var'), plot_flag = 0; end
@@ -17,8 +19,8 @@ function [y0, X, x0] = gauss_fit(x, y, plot_flag, test)
     if size(y) ~= size(x), y = y'; end
 
     initGuess(1) = max(y);
-    initGuess(2) = max(x(:));
-    initGuess(3) = 0;
+    [initGuess(2), index] = max(x(:));
+    initGuess(3) = x(index);
     opts = optimset('MaxFunEvals',1e7);
     [fit2,~,exitflag] = fminsearch(@(fit) fiterror(fit,x,y), ...
                                    initGuess,opts);
@@ -43,11 +45,11 @@ function [E] = fiterror(fit,x,y)
 end
 
 function [] = test_fit()
-    x = [0:0.05:24];
-    X = 12;
+    x = [-24:0.05:24];
+    X = 10;
     y0 = 2;
     x0 = 0.5;
-    y = y0 * exp(-((x-x0)/X).^2); % + y0/100 * rand(size(x));
+    y = y0 * exp(-((x-x0)/X).^2.05); % + y0/100 * rand(size(x));
 
     [yy,xx,xx0] = gauss_fit(x,y,1);
 

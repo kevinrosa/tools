@@ -1,5 +1,6 @@
 function [] = dc_roms_wind_forcing(S,frcname)
 
+    error('NEED TO MAKE THIS XI_V and XI_U etc');
     if exist(frcname,'file'), delete(frcname); end
 
     nccreate(frcname,'sms_time','Dimensions',{'sms_time' Inf});
