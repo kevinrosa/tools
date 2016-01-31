@@ -2,6 +2,7 @@
 %% precompile using
 %% xelatex -ini -jobname=”preamble” “&xelatex” mylatexformat.ltx “””preamble.tex”””
 
+\RequirePackage{fixltx2e}
 \usepackage{iftex}
 \ifPDFTeX
 	\usepackage{inputenx}
@@ -9,7 +10,6 @@
 	\usepackage[sc]{mathpazo}    % fancy math fonts
 \fi
 
-\usepackage{fixltx2e}
 \usepackage{graphicx}   % add figures
 \usepackage{xcolor} 	 % support for color names
 \usepackage{array}
@@ -46,16 +46,14 @@
 \usepackage[protrusion=true]{microtype}  % super fancy typography support
 
 \sisetup{
-	detect-all = true
+	detect-all = true,
+	separate-uncertainty = true
 }
 %% unused stuff
 %\usepackage{psfragx}    % for use with LaPrint.m
 %\usepackage{fullpage}
 %\usepackage{doi}
 %\usepackage{uri}
-
-% Line spacing 1.5
-\linespread{1.5}
 
 \frenchspacing
 \newcommand{\ifundefined}[1]{\expandafter\ifx\csname#1\endcsname\relax}
@@ -92,6 +90,23 @@
 \newcommand{\pp}[3][]{{\frac{\partial^{#1} #2}{\partial #3^{#1}}}}
 \newcommand{\DD}[1]{{\frac{\D#1}{\D t}}}
 % example: \pp[2]y x
+
+
+% absolute value signs
+% https://tex.stackexchange.com/questions/43008/absolute-value-symbols#
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+
+% Swap the definition of \abs* and \norm*, so that \abs
+% and \norm resizes the size of the brackets, and the
+% starred version does not.
+\makeatletter
+\let\oldabs\abs
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+%
+\let\oldnorm\norm
+\def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
+\makeatother
 
 % These are some of my math shortcuts
 \newcommand{\mb}[1]{\boldsymbol{#1}} % math bold font
