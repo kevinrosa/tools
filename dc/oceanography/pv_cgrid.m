@@ -20,6 +20,7 @@ function [pv,xpv,ypv,zpv,rvor] = pv_cgrid(rgrid,u,v,rho,f,rho0)
     
     s = size(rho);
     if length(s) == 3
+
         s(4) = 1;
     end
     
@@ -55,7 +56,7 @@ function [pv,xpv,ypv,zpv,rvor] = pv_cgrid(rgrid,u,v,rho,f,rho0)
     end
     
     rvor  = vx - uy;
-    
+
     % PV calculated at interior rho points
                                 % f + vx - uy                      (rho)_z
     pv = -1* double((avg1(bsxfun(@plus,avg1(rvor,2),f), 1).*tz(2:end-1,2:end-1,:,:) ...

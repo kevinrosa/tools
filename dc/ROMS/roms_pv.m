@@ -25,7 +25,7 @@ else
     dirflag = 0;
 end
 
-slab  = roms_slab(fname,0) + 36;
+slab  = 15; roms_slab(fname,0) + 16;
 
 warning off
 grid = roms_get_grid(fname,fname,1,1);
@@ -103,7 +103,11 @@ end
 %rv_scale = 1e-4;
 % steal chunking from ROMS
 rhoinfo = ncinfo(fname, 'rho');
-chunksize = min(rhoinfo.ChunkSize,[sz(1)-1 sz(2)-2 sz(3)-1 length(tpv)]);
+if length(sz) == 3
+    chunksize = min(rhoinfo.ChunkSize,[sz(1)-1 sz(2)-2 sz(3)-1 length(tpv)]);
+else
+    error('Choose 3D volume!');
+end
 
 nccreate(outname,'pv', 'Format','netcdf4', 'DeflateLevel',5,'Shuffle',true,...
     'Dimensions', {xdname sz(1)-1 ydname sz(2)-2 zdname sz(3)-1 tdname length(tpv)}, ...
