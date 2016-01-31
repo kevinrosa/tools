@@ -1,5 +1,7 @@
 % I want to fit y = y_0 exp(-((x-x0)/X)^2)
-function [y0, X, x0] = gauss_fit(x, y, plot_flag, test)
+function [y0, X, x0, exitflag] = gauss_fit(x, y, plot_flag, test)
+
+    x = double(x); y = double(y);
 
     if ~exist('test', 'var'), test = 0; end
     if ~exist('plot_flag', 'var'), plot_flag = 0; end
