@@ -1,0 +1,41 @@
+\documentclass{ametsoc}
+
+\usepackage[mathletters]{ucs}
+\usepackage[utf8x]{inputenx}
+\usepackage[T1]{fontenc}  % better font encoding
+
+\usepackage{array}
+\usepackage{booktabs}    % fancy tables
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{subfig}	% add subfigure support
+\usepackage{float}	     % stronger placement of floats
+
+\usepackage[normalem]{ulem}
+
+\usepackage{etoolbox}
+\usepackage{parskip}
+\usepackage{paralist}
+\usepackage{pdflscape} % allow landscape pages in pdf
+
+\usepackage{mathtools} % fixed version of amsmath
+\usepackage{siunitx} % Messes up tables
+\usepackage{xfrac}
+\usepackage{bigints}
+
+\usepackage[protrusion=true]{microtype}  % super fancy typography support
+
+\sisetup{
+	detect-all = true,
+	separate-uncertainty = true,
+        list-units=single,
+        range-phrase = --
+}
+
+\bibpunct{(}{)}{;}{a}{}{,}
+
+\input{my-math}
+\newcommand{\ifundefined}[1]{\expandafter\ifx\csname#1\endcsname\relax}
+\def\preambleloaded{Precompiled preamble loaded.}
+
+\csname endofdump\endcsname
