@@ -88,8 +88,7 @@ function [] = beautify(fontSizes)
      if ~isempty(findall(gcf, 'type', 'colorbar'))
          hcbar = findall(gcf,'type','colorbar');
          for ii = 1:length(hcbar)
-             hcbar(ii).Label.Rotation = 0;
-             hcbar(ii).Label.FontSize = fontSizes(1)*0.9;
+             hcbar(ii).Label.FontSize = fontSizes(2)*0.9;
              hcbar(ii).TickDirection = 'in';
              hcbar(ii).TickLength = 0.02;
              hcbar(ii).LineWidth = 1;
