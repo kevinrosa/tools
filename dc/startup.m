@@ -7,13 +7,14 @@ rehash toolboxcache
 feature('DefaultCharacterSet', 'UTF8');
 
 warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+warning('off','MATLAB:lang:cannotClearExecutingFunction');
 
 %% Make good figures
 
 % good colormap
 set(0,'DefaultFigureColormap',flipud(cbrewer('div', 'RdYlBu', 32)));
 %set(0, 'DefaultFigureColormap', parula); close;
-fontName = 'Helvetica';
+fontName = 'FiraSans';
 
 % figure properties
 %set(0,'DefaultTextInterpreter','latex')
@@ -27,7 +28,8 @@ set(0,'DefaultTextFontSize',16);
 
 % line style and color cycling
 set(0,'DefaultAxesLineStyleOrder',{'-','--','-.'});
-set(0,'DefaultAxesColorOrder', cbrewer('qual', 'Dark2', 8));
+%set(0,'DefaultAxesColorOrder', cbrewer('qual', 'Dark2', 8));
+set(0,'DefaultAxesColorOrder', linspecer(8, 'qualitative'));
 %set(0,'DefaultAxesColorOrder', distinguishable_colors(15));
 
 % axes
