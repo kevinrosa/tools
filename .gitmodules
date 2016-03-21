@@ -7,3 +7,6 @@
 [submodule "oceanography/jlab"]
 	path = oceanography/jlab
 	url = git@github.com:dcherian/jlab
+[submodule "misc/fix_matlab_eps"]
+	path = misc/fix_matlab_eps
+	url = git@github.com:Sbte/fix_matlab_eps.git
