@@ -14,12 +14,12 @@ warning('off','MATLAB:lang:cannotClearExecutingFunction');
 % good colormap
 set(0,'DefaultFigureColormap',flipud(cbrewer('div', 'RdYlBu', 32)));
 %set(0, 'DefaultFigureColormap', parula); close;
-fontName = 'FiraSans';
+fontName = 'Helvetica';
 
 % figure properties
 %set(0,'DefaultTextInterpreter','latex')
 set(0,'DefaultFigureColor','w')
-set(0,'DefaultFigureRenderer','zbuffer')
+set(0,'DefaultFigureRenderer','opengl')
 set(0,'DefaultFigurePaperPositionMode', 'auto');
 
 set(0,'DefaultTextFontName', fontName);
@@ -36,7 +36,6 @@ set(0,'DefaultAxesColorOrder', linspecer(8, 'qualitative'));
 set(0,'DefaultAxesFontName',fontName)
 set(0,'DefaultAxesFontWeight','normal')
 set(0,'DefaultAxesTickLength'  , [.01 .01]);
-set(0,'DefaultAxesLineWidth'  , 2);
 set(0,'DefaultAxesFontSize',14)
 set(0,'DefaultAxesBox','on')
 set(0,'DefaultAxesTickDir','out')
@@ -48,7 +47,6 @@ set(0,'DefaultAxesYColor',[.3 .3 .3])
 set(0,'DefaultAxesZColor',[.3 .3 .3])
 set(0,'DefaultAxesLineWidth',1)
 set(0,'DefaultLineLineWidth',2);
-
 
 % multiple monitor support
 %mm = get(0,'MonitorPositions');

@@ -17,7 +17,8 @@ function [y0, X, y1] = exp_fit(x, y, plot_flag, test)
     initGuess(1) = y(1);
     initGuess(2) = mean(x(:));
     initGuess(3) = y(1);
-    opts = optimset('MaxFunEvals',1e5);
+
+    opts = optimset('MaxFunEvals',1e7, 'TolFun', 1e-10);
     [fit2,~,exitflag] = fminsearch(@(fit) fiterror(fit,x,y), ...
                                    initGuess,opts);
 
@@ -41,8 +42,8 @@ end
 
 function [] = test_exp_fit()
     x = [0.02:0.05:5];
-    X = 2;
-    y0 = 2;
+    X = -2;
+    y0 = -2;
     y1 = 0.5;
     y = y1 + y0 * exp(-x/X) + rand(size(x)) .* y0/4;
 
