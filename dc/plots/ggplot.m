@@ -9,6 +9,12 @@ function [] = ggplot()
     hax.TickLength = [0 0];
     hax.LineWidth = 2;
 
-    hax.XRuler.Axle.ColorData = uint8([0 0 0 0])';
-    hax.YRuler.Axle.ColorData = uint8([0 0 0 0])';
+    hax.XAxis.Axle.LineStyle = 'none';
+    hax.YAxis.Axle.LineStyle = 'none';
+    hax.XAxis.TickLabelGapOffset = 0;
+    hax.XAxis.TickLabelGapMultiplier = 0;
+    hax.YAxis.TickLabelGapOffset = 0;
+    hax.YAxis.TickLabelGapMultiplier = 0;
+
+    set(gcf, 'renderer', 'opengl');
 end
