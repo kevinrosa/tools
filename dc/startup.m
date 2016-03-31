@@ -12,47 +12,48 @@ warning('off','MATLAB:lang:cannotClearExecutingFunction');
 %% Make good figures
 
 % good colormap
-set(0,'DefaultFigureColormap',flipud(cbrewer('div', 'RdYlBu', 32)));
-%set(0, 'DefaultFigureColormap', parula); close;
-fontName = 'Helvetica';
+set(groot,'DefaultFigureColormap',flipud(cbrewer('div', 'RdYlBu', 32)));
+%set(groot, 'DefaultFigureColormap', parula); close;
+fontName = 'Fira Sans';
 
 % figure properties
-%set(0,'DefaultTextInterpreter','latex')
-set(0,'DefaultFigureColor','w')
-set(0,'DefaultFigureRenderer','opengl')
-set(0,'DefaultFigurePaperPositionMode', 'auto');
+%set(groot,'DefaultTextInterpreter','latex')
+set(groot,'DefaultFigureColor','w')
+set(groot,'DefaultFigureRenderer','opengl')
+set(groot,'DefaultFigurePaperPositionMode', 'auto');
 
-set(0,'DefaultTextFontName', fontName);
-set(0,'DefaultTextColor','k')
-set(0,'DefaultTextFontSize',16);
+set(groot,'DefaultTextFontName', fontName);
+set(groot,'DefaultTextColor','k')
+set(groot,'DefaultTextFontSize',20);
 
 % line style and color cycling
-set(0,'DefaultAxesLineStyleOrder',{'-','--','-.'});
-%set(0,'DefaultAxesColorOrder', cbrewer('qual', 'Dark2', 8));
-set(0,'DefaultAxesColorOrder', linspecer(8, 'qualitative'));
-%set(0,'DefaultAxesColorOrder', distinguishable_colors(15));
+set(groot,'DefaultAxesLineStyleOrder',{'-','--','-.'});
+%set(groot,'DefaultAxesColorOrder', cbrewer('qual', 'Dark2', 8));
+set(groot,'DefaultAxesColorOrder', linspecer(8, 'qualitative'));
+%set(groot,'DefaultAxesColorOrder', distinguishable_colors(15));
 
 % axes
-set(0,'DefaultAxesFontName',fontName)
-set(0,'DefaultAxesFontWeight','normal')
-set(0,'DefaultAxesTickLength'  , [.01 .01]);
-set(0,'DefaultAxesFontSize',14)
-set(0,'DefaultAxesBox','on')
-set(0,'DefaultAxesTickDir','out')
-%set(0,'DefaultAxesXMinorTick','on')
-%set(0,'DefaultAxesYMinorTick','on')
-%set(0,'DefaultAxesZMinorTick','on')
-set(0,'DefaultAxesXColor',[.3 .3 .3])
-set(0,'DefaultAxesYColor',[.3 .3 .3])
-set(0,'DefaultAxesZColor',[.3 .3 .3])
-set(0,'DefaultAxesLineWidth',1)
-set(0,'DefaultLineLineWidth',2);
+set(groot,'DefaultAxesFontName',fontName)
+set(groot, 'DefaultAxesTitleFontWeight','normal');
+set(groot,'DefaultAxesFontWeight','normal')
+set(groot,'DefaultAxesTickLength'  , [.01 .01]);
+set(groot,'DefaultAxesFontSize',18)
+set(groot,'DefaultAxesBox','on')
+set(groot,'DefaultAxesTickDir','out')
+%set(groot,'DefaultAxesXMinorTick','on')
+%set(groot,'DefaultAxesYMinorTick','on')
+%set(groot,'DefaultAxesZMinorTick','on')
+set(groot,'DefaultAxesXColor',[.3 .3 .3])
+set(groot,'DefaultAxesYColor',[.3 .3 .3])
+set(groot,'DefaultAxesZColor',[.3 .3 .3])
+set(groot,'DefaultAxesLineWidth',1)
+set(groot,'DefaultLineLineWidth',2);
 
 % multiple monitor support
-%mm = get(0,'MonitorPositions');
+%mm = get(groot,'MonitorPositions');
 %if size(mm,1) == 2,
 %    disp('2 monitors detected.');
-%    set(0,'DefaultFigurePosition',[0.725*(mm(1,3)+mm(2,3)) 0.5*mm(2,4) 560 420]);
+%    set(groot,'DefaultFigurePosition',[0.725*(mm(1,3)+mm(2,3)) 0.5*mm(2,4) 560 420]);
 %end
 
 

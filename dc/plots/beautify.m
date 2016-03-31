@@ -11,10 +11,10 @@ function [] = beautify(fontSizes)
 %drawnow;
 
     if ~exist('fontSizes','var') || isempty(fontSizes)
-        fontSizes = [18 20 24];
+        fontSizes = [22 24 28];
     end
 
-    font_name = 'Helvetica';
+    font_name = 'Fira Sans';
     font_name_axis = font_name;
 
     % Get required handles for current figure
