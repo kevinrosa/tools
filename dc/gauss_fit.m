@@ -1,5 +1,6 @@
-% I want to fit y = y_0 exp(-((x-x0)/X)^2)
-function [y0, X, x0, exitflag] = gauss_fit(x, y, plot_flag, test)
+% I want to fit y = y_0 exp(-((x-x0)/X)^2) + y1
+%      [y0, X, x0, y1, exitflag] = gauss_fit(x, y, plot_flag, test)
+function [y0, X, x0, y1, exitflag] = gauss_fit(x, y, plot_flag, test)
 
     x = double(x); y = double(y);
 
@@ -21,13 +22,15 @@ function [y0, X, x0, exitflag] = gauss_fit(x, y, plot_flag, test)
     initGuess(1) = max(y);
     [initGuess(2), index] = max(x(:));
     initGuess(3) = x(index);
-    opts = optimset('MaxFunEvals',1e7);
+    initGuess(4) = min(abs(y(:)));
+    opts = optimset('MaxFunEvals',1e9);
     [fit2,~,exitflag] = fminsearch(@(fit) fiterror(fit,x,y), ...
                                    initGuess,opts);
 
     y0 = fit2(1);
     X = abs(fit2(2)); % sometimes returns -ve for some reason
     x0 = fit2(3);
+    y1 = fit2(4);
 
     if plot_flag
         figure;
@@ -39,9 +42,9 @@ end
 
 function [E] = fiterror(fit,x,y)
 % x = (T0,H,a)
-    y0 = fit(1); X = fit(2); x0 = fit(3);
+    y0 = fit(1); X = fit(2); x0 = fit(3); y1 = fit(4);
 
-    E = sum((y - y0 .* exp(-((x-x0)/X).^2)).^2);
+    E = sum((y - y0 .* exp(-((x-x0)/X).^2) - y1).^2);
 end
 
 function [] = test_fit()
@@ -49,11 +52,13 @@ function [] = test_fit()
     X = 10;
     y0 = 2;
     x0 = 0.5;
-    y = y0 * exp(-((x-x0)/X).^2.05); % + y0/100 * rand(size(x));
+    y1 = 0.2;
+    y = y0 * exp(-((x-x0)/X).^2) + y1 + y0/100 * rand(size(x));
 
-    [yy,xx,xx0] = gauss_fit(x,y,1);
+    [yy,xx,xx0, y10] = gauss_fit(x,y,1);
 
     disp(['y0 = ' num2str(yy) ' | Original = ' num2str(y0)]);
     disp(['X = ' num2str(xx) ' | Original = ' num2str(X)]);
     disp(['x0 = ' num2str(xx0) ' | Original = ' num2str(x0)]);
+    disp(['y1 = ' num2str(y10) ' | Original = ' num2str(y1)]);
 end
