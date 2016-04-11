@@ -1,6 +1,6 @@
 % I want to fit y = y_0 exp(-((x-x0)/X)^2) + y1
 %      [y0, X, x0, y1, exitflag] = gauss_fit(x, y, plot_flag, test)
-function [y0, X, x0, y1, exitflag] = gauss_fit(x, y, plot_flag, test)
+function [y0, X, x0, y1, exitflag, conf] = gauss_fit(x, y, plot_flag, test)
 
     x = double(x); y = double(y);
 
@@ -17,26 +17,40 @@ function [y0, X, x0, y1, exitflag] = gauss_fit(x, y, plot_flag, test)
         return;
     end
 
-    if size(y) ~= size(x), y = y'; end
+    if size(x,1) ~= 1, x = x'; end
+    if size(y,1) ~= 1, y = y'; end
 
     initGuess(1) = max(y);
     [initGuess(2), index] = max(x(:));
     initGuess(3) = x(index);
     initGuess(4) = min(abs(y(:)));
-    opts = optimset('MaxFunEvals',1e9);
+    opts = optimset('MaxFunEvals',1e11);
+
+    %this doesn't seem to work
+    %modelfun = @(b,t)b(1)*exp(-(t-b(2))/b(3)) + b(4);
+    %fitmodel = fitnlm(x,y, modelfun, initGuess);
+
+    % do the fit using fminsearch.
+    % use solution to curve-fit so that MATLAB gives me confidence intervals :)
+    % launda isshmart hai!
+    gaussfit = fittype(@(y0,X,x0,y1,x)y0*exp( -((x-x0)/X).^2 ) + y1);
     [fit2,~,exitflag] = fminsearch(@(fit) fiterror(fit,x,y), ...
                                    initGuess,opts);
+    fitobj = fit(x',y',gaussfit, 'StartPoint', fit2);
+    conf = confint(fitobj);
 
-    y0 = fit2(1);
-    X = abs(fit2(2)); % sometimes returns -ve for some reason
-    x0 = fit2(3);
-    y1 = fit2(4);
+    y0 = fitobj.y0;
+    X = abs(fitobj.X); % sometimes returns -ve for some reason
+    x0 = fitobj.x0;
+    y1 = fitobj.y1;
 
     if plot_flag
         figure;
-        plot(x,y,'k*'); hold all
-        plot(x, y0*exp(-((x-x0)/X).^2));
-        %        linex([1 2 3]*X);
+        subplot(211);
+        hold on;
+        plot(x,y,'k.', 'MarkerSize', 12);
+        plot(fitobj, 'predobs');
+        plot(fitobj,x',y', 'residuals')
     end
 end
 
@@ -53,7 +67,7 @@ function [] = test_fit()
     y0 = 2;
     x0 = 0.5;
     y1 = 0.2;
-    y = y0 * exp(-((x-x0)/X).^2) + y1 + y0/100 * rand(size(x));
+    y = y0 * exp(-((x-x0)/X).^2) + y1 + y0/50 * rand(size(x));
 
     [yy,xx,xx0, y10] = gauss_fit(x,y,1);
 
