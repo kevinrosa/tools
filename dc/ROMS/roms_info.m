@@ -18,10 +18,8 @@ function [] = roms_info(fname,plot)
         fname = 'ocean_his.nc';
     end
     
-    warning off;
     grid = roms_get_grid(fname,fname,0,1);
-    warning on;
-    
+
     title_file  = ncreadatt(fname,'/','title');
     cpp    = ncreadatt(fname,'/','CPP_options');
     lbc    = ncreadatt(fname,'/','NLM_LBC');

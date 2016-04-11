@@ -3,8 +3,6 @@
 
 function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,tindex)
 
-    warning off;
-
     if ~exist('tindex','var'), tindex = 0; end
     
     if isstruct(fname)
@@ -158,5 +156,3 @@ function [xax,yax,zax,tax,xunits,yunits,grd] = dc_roms_var_grid(fname,varname,ti
         xax = xax(:,:,1);
         yax = yax(:,:,1);
     end
-
-    warning on;
