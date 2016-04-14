@@ -1,5 +1,5 @@
 % I want to fit y = y_0 exp(-((x-x0)/X)^2) + y1
-%      [y0, X, x0, y1, exitflag] = gauss_fit(x, y, plot_flag, test)
+%      [y0, X, x0, y1, exitflag, conf] = gauss_fit(x, y, plot_flag, test)
 function [y0, X, x0, y1, exitflag, conf] = gauss_fit(x, y, plot_flag, test)
 
     x = double(x); y = double(y);
@@ -41,6 +41,12 @@ function [y0, X, x0, y1, exitflag, conf] = gauss_fit(x, y, plot_flag, test)
 
     y0 = fitobj.y0;
     X = abs(fitobj.X); % sometimes returns -ve for some reason
+    conf(:,2) = abs(conf(:,2));
+    if conf(1,2) > conf(2,2)
+        temp = conf(2,2);
+        conf(2,2) = conf(1,2);
+        conf(1,2) = temp;
+    end
     x0 = fitobj.x0;
     y1 = fitobj.y1;
 
