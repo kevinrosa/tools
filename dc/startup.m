@@ -24,7 +24,7 @@ set(groot,'DefaultFigurePaperPositionMode', 'auto');
 
 set(groot,'DefaultTextFontName', fontName);
 set(groot,'DefaultTextColor','k')
-set(groot,'DefaultTextFontSize',20);
+set(groot,'DefaultTextFontSize',24);
 
 % line style and color cycling
 set(groot,'DefaultAxesLineStyleOrder',{'-','--','-.'});
@@ -37,7 +37,7 @@ set(groot,'DefaultAxesFontName',fontName)
 set(groot, 'DefaultAxesTitleFontWeight','normal');
 set(groot,'DefaultAxesFontWeight','normal')
 set(groot,'DefaultAxesTickLength'  , [.01 .01]);
-set(groot,'DefaultAxesFontSize',18)
+set(groot,'DefaultAxesFontSize',22)
 set(groot,'DefaultAxesBox','on')
 set(groot,'DefaultAxesTickDir','out')
 %set(groot,'DefaultAxesXMinorTick','on')
