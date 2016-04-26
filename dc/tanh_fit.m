@@ -2,6 +2,8 @@
 %  [y0, X, x0, y1, conf, fitobj] = tanh_fit(x, y, plot_flag, test)
 function [y0, X, x0, y1, conf, fitobj] = tanh_fit(x, y, plot_flag, test)
 
+    x = double(x); y = double(y);
+
     if ~exist('test', 'var'), test = 0; end
     if ~exist('plot_flag', 'var'), plot_flag = 0; end
 
@@ -18,8 +20,8 @@ function [y0, X, x0, y1, conf, fitobj] = tanh_fit(x, y, plot_flag, test)
     y = y - ym;
 
     initGuess(1) = max(y(:));
-    initGuess(2) = max(x(:))/2;
-    initGuess(3) = 0;
+    initGuess(2) = mean(x(:));
+    initGuess(3) = mean(x(:));
     initGuess(4) = 0;
 
     opts = optimset('MaxFunEvals',1e7);
@@ -49,7 +51,8 @@ function [y0, X, x0, y1, conf, fitobj] = tanh_fit(x, y, plot_flag, test)
         figure; hold on;
         plot(x,y,'k.', 'MarkerSize', 12);
         plot(fitobj, 'predobs');
-        plot(fitobj,x',y', 'residuals')
+        plot(fitobj,x',y', 'residuals');
+        legend('Location', 'NorthWest');
         %        linex([1 2 3]*X);
     end
 end
