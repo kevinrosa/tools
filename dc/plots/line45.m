@@ -13,5 +13,6 @@ function [hline] = line45(hAxis)
         lim(1) = min([limx limy]);
         lim(2) = max([limx limy]);
         hline = plot(lim, lim, '--', 'Color', [1 1 1]*0.75);
+        axis square;
     end
 end
