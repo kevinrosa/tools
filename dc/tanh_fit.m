@@ -46,14 +46,21 @@ function [y0, X, x0, y1, conf, fitobj] = tanh_fit(x, y, plot_flag, test)
     end
     x0 = fitobj.x0;
     y1 = fitobj.y1 + ym;
+    conf(:,4) = conf(:,4) + ym;
+
+    if ~exitflag
+        fit2 = nan(4,1);
+        conf(:) = NaN;
+    end
 
     if plot_flag
         figure; hold on;
         plot(x,y,'k.', 'MarkerSize', 12);
-        plot(fitobj, 'predobs');
+        ci = predint(fitobj, x, 0.95, 'functional');
+        plot(fitobj);
+        plot(x, ci, 'r--');
         plot(fitobj,x',y', 'residuals');
-        legend('Location', 'NorthWest');
-        %        linex([1 2 3]*X);
+        legend('off'); %'Location', 'NorthWest');
     end
 end
 
