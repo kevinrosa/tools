@@ -4,8 +4,6 @@ function [] = MakeKozak(hax)
         hax = gca;
     end
 
-    hax.Box = 'off';
-
     hlines = findobj(hax.Children, '-property', 'xdata', '-property', 'ydata');
 
     xlo = []; xhi = []; ylo = []; yhi = [];
@@ -18,11 +16,11 @@ function [] = MakeKozak(hax)
     end
 
     hax.XTick((hax.XTick < xlo) | (hax.XTick > xhi)) = [];
-    hax.YTick((hax.YTick < ylo) | (hax.YTick > yhi)) = []
+    hax.YTick((hax.YTick < ylo) | (hax.YTick > yhi)) = [];
 
     hax.XTick = sort(unique([hax.XTick xlo xhi]));
     hax.YTick = sort(unique([hax.YTick ylo yhi]));
 
-    hax.XAxis.Axle.VertexData(1,:) = [xlo, xhi];
-    hax.YAxis.Axle.VertexData(2,:) = [ylo, yhi];
+    hax.XAxis.Axle.VertexData(1,:) = single([xlo, xhi]);
+    hax.YAxis.Axle.VertexData(2,:) = single([ylo, yhi]);
 end
