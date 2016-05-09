@@ -4,11 +4,6 @@
 
 \RequirePackage{fixltx2e}
 \usepackage{iftex}
-\ifPDFTeX
-	\usepackage{inputenx}
-	\usepackage[T1]{fontenc}  % better font encoding
-	\usepackage[sc]{mathpazo}    % fancy math fonts
-\fi
 
 \usepackage{graphicx}   % add figures
 \usepackage{xcolor} 	 % support for color names
@@ -19,15 +14,14 @@
 \usepackage{subfig}	% add subfigure support
 \usepackage{float}	     % stronger placement of floats
 
-\usepackage{ulem}
+\usepackage[normalem]{ulem}
+\usepackage{cancel} % strikeout in math-mode
 
 \usepackage{etoolbox}
 \usepackage{parskip}
 \usepackage{paralist}
 \usepackage{rotating} % allow page rotation
 \usepackage{pdflscape} % allow landscape pages in pdf
-\usepackage{hyperref}  % hyperlinks in pdf
-\usepackage[figure,table]{hypcap} % Correct a problem with hyperref
 
 %\usepackage{fancyhdr}
 % can't get undertilde to work on TeXLive
@@ -35,19 +29,19 @@
 % fixme introduces error
 %\usepackage[envlayout=color]{fixme}
 \usepackage{mathtools} % fixed version of amsmath
-\usepackage[warning]{onlyamsmath}
+\usepackage{bm}
+%\usepackage[warning]{onlyamsmath} - clashes with beamer metropolis t
 \usepackage{siunitx} % Messes up tables
 \usepackage{xfrac}
 \usepackage{bigints}
-
-\usepackage[sort&compress]{natbib} % for bibliography
-\usepackage{cleveref}
 
 \usepackage[protrusion=true]{microtype}  % super fancy typography support
 
 \sisetup{
 	detect-all = true,
-	separate-uncertainty = true
+	separate-uncertainty = true,
+        list-units=single,
+        range-phrase = --
 }
 %% unused stuff
 %\usepackage{psfragx}    % for use with LaPrint.m
@@ -55,8 +49,8 @@
 %\usepackage{doi}
 %\usepackage{uri}
 
-\frenchspacing
-\newcommand{\ifundefined}[1]{\expandafter\ifx\csname#1\endcsname\relax}
+\usepackage{hyperref}  % hyperlinks in pdf
+\usepackage[figure,table]{hypcap} % Correct a problem with hyperref
 
 \hypersetup{
     unicode=true,          % non-Latin characters in Acrobat’s bookmarks
@@ -72,57 +66,14 @@
     urlcolor=blue           % color of external links
 }
 
+\frenchspacing
+\newcommand{\ifundefined}[1]{\expandafter\ifx\csname#1\endcsname\relax}
+
 %\clubpenalty = 10000
 %\widowpenalty = 10000
 \setlength{\parskip}{1.2ex}
 \setlength{\parindent}{0em}
-
-% Here are a few math abbreviations that may be useful. Note that math
-% variables should generally be set in italic, vectors in bold italic, and
-% constants, such as e and i should be upright. Operators like the 'd' in
-% dx  and 'D' in D/Dt should also be upright.
-\newcommand{\ir}{\mathrm{i}}
-\newcommand{\e}{\, \mathrm{e}} \newcommand{\er}{\mathrm{e}}
-
-% The following makes ODEs and PDEs easier to write.
-% For an example, see the second problem below. - Vallis Solution template
-\newcommand{\dd}[3][]{{\frac{\dr^{#1} #2}{\dr #3^{#1}}}}
-\newcommand{\pp}[3][]{{\frac{\partial^{#1} #2}{\partial #3^{#1}}}}
-\newcommand{\DD}[1]{{\frac{\D#1}{\D t}}}
-% example: \pp[2]y x
-
-
-% absolute value signs
-% https://tex.stackexchange.com/questions/43008/absolute-value-symbols#
-\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
-\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
-
-% Swap the definition of \abs* and \norm*, so that \abs
-% and \norm resizes the size of the brackets, and the
-% starred version does not.
-\makeatletter
-\let\oldabs\abs
-\def\abs{\@ifstar{\oldabs}{\oldabs*}}
-%
-\let\oldnorm\norm
-\def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
-\makeatother
-
-% These are some of my math shortcuts
-\newcommand{\mb}[1]{\boldsymbol{#1}} % math bold font
-\newcommand{\ol}[1]{\overline{#1}}
-\newcommand{\x}{\times}
-\newcommand{\mO}{\textnormal{O}}
-\newcommand{\ubr}{\underbracket}
-\newcommand{\disp}{\displaystyle}
-\newcommand{\vb}{\mb {v}\xspace}
-\newcommand{\ub}{\mb {u}\xspace}
-\mathchardef\mhyph="2D
-
-\DeclareMathOperator{\erf}{erf}
-
-\newcommand{\dr}{\mathop{}\!\mathrm{d}}
-\newcommand{\D}{\mathop{}\!\mathrm{D}}
+\input{my-math}
 
 % Text shortcuts
 \newcommand{\textbox}[1]{
@@ -132,19 +83,6 @@
 	 	}
 	\end{center}
 }
-
-% non-dimensional numbers
-\newcommand{\Ro}{\textnormal{Ro}}
-\newcommand{\Rot}{\textnormal{Ro}_\textnormal{T}}
-\newcommand{\Rh}{\textnormal{Rh}}
-\newcommand{\Ri}{\textnormal{Ri}}
-\newcommand{\Rif}{\Ri_f}
-\newcommand{\Pra}{\textnormal{Pr}}
-\newcommand{\Pe}{\textnormal{Pe}}
-\newcommand{\Ra}{\textnormal{Ra}}
-\newcommand{\Rey}{\textnormal{Re}}
-\newcommand{\Fr}{\textnormal{Fr}}
-\newcommand{\Bu}{\textnormal{Bu}}
 
 \def\preambleloaded{Precompiled preamble loaded.}
 
