@@ -1,5 +1,5 @@
 % I want to fit y = y_1 + y_0 exp(-(x-x0)/X)
-function [y0, X, x0, y1] = exp_fit(x, y, plot_flag, test)
+function [y0, X, x0, y1, conf, fitobj] = exp_fit(x, y, plot_flag, test)
 
     if ~exist('test', 'var'), test = 0; end
     if ~exist('plot_flag', 'var'), plot_flag = 0; end
@@ -20,18 +20,27 @@ function [y0, X, x0, y1] = exp_fit(x, y, plot_flag, test)
     initGuess(4) = 0;
 
     opts = optimset('MaxFunEvals',1e7, 'TolFun', 1e-10);
+
+    % do the fit using fminsearch.
+    % use solution to curve-fit so that MATLAB gives me confidence intervals :)
+    % launda isshmart hai!
+    expfit = fittype(@(y0,X,x0,y1,x)y0*exp( -((x-x0)/X)) + y1);
     [fit2,~,exitflag] = fminsearch(@(fit) fiterror(fit,x,y), ...
                                    initGuess,opts);
+    fitobj = fit(x',y',expfit, 'StartPoint', fit2);
+    conf = confint(fitobj);
 
-    y0 = fit2(1);
-    X = fit2(2);
-    y1 = fit2(3);
-    x0 = fit2(4);
+    y0 = fitobj.y0;
+    X = fitobj.X; % sometimes returns -ve for some reason
+    x0 = fitobj.x0;
+    y1 = fitobj.y1;
 
     if plot_flag
         figure;
-        plot(x,y,'k*'); hold all
-        plot(x,y1 + y0*exp(-(x-x0)/X));
+        hold on;
+        plot(x,y,'k.', 'MarkerSize', 12);
+        plot(fitobj, 'predobs');
+        plot(fitobj,x',y', 'residuals')
     end
 end
 
