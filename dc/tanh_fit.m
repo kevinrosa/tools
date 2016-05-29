@@ -16,7 +16,7 @@ function [y0, X, x0, y1, conf, fitobj] = tanh_fit(x, y, plot_flag, test)
     if size(y,1) ~= 1, y = y'; end
 
     ym = mean(y);
-    warning('subtracting mean for better fit');
+    %warning('subtracting mean for better fit');
     y = y - ym;
 
     initGuess(1) = max(y(:));

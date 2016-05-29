@@ -283,7 +283,7 @@ labels.time = time(tindices(1):dt:tindices(2));
 labels.stride = i;
 
 % read data
-if (axis == 'z' && (~ischar(index) || flags.notopo)) || dim == 3
+if axis ~='z' || (axis == 'z' && (~ischar(index) || flags.notopo)) || dim == 3
     dv = dc_roms_read_data(fname, varname, tindices, volume, [], grd);
 else
     % we need to interpolate
