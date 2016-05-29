@@ -10,7 +10,8 @@ function [hcbar] = center_colorbar(hcbar)
 
     % if this is called, then I want a diverging colorbar with
     % white at 0.
-    colormap(flipud(cbrewer('div','RdBu', 32)));
+    hax = gca;
+    colormap(hax, flipud(cbrewer('div','RdBu', 32)));
 
     % always mark 0
     hcbar.Ticks = sort(unique([hcbar.Ticks 0]));
