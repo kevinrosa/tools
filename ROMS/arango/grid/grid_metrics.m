@@ -22,7 +22,7 @@ function [pm, pn, dndx, dmde] = grid_metrics(G, GreatCircle)
 %    pm         Curvilinear coordinate metric in the XI-direction
 %                 (1/meters; dx = 1/pm)
 %
-%    pm         Curvilinear coordinate metric in the ETA-direction
+%    pn         Curvilinear coordinate metric in the ETA-direction
 %                 (1/meters; dy = 1/pn)
 %
 %    dndx       XI-derivative  of inverse metric factor pn (meters),
